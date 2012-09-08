@@ -1,0 +1,191 @@
+
+/*****   global  *******/
+
+*{padding: 0; margin: 0; font-size: 13px; line-height: 17px; border-collapse:collapse; border:none; outline: none; list-style-type: none; font-weight:normal;font-family: Museo500, helvetica, arial;  }
+body{background:#2e7bb1 url(../images/bg.png) top left repeat-x; }
+#wrapper{width: 960px; margin: 0 auto;  }
+#container{}
+#content{background: #fff; border: 3px solid #a2ccea; padding-bottom: 84px;}
+ .pad{padding-top: 10px; padding-left: 12px;}
+
+
+hr{border-top: 2px solid #ddd; border-bottom: 2px solid #fff; background: none;}
+
+.round{-webkit-border-radius: 4px;-moz-border-radius: 4px;border-radius: 4px;}
+.roundTop{-webkit-border-top-left-radius: 4px;-webkit-border-top-right-radius: 4px;-moz-border-radius-topleft: 4px;-moz-border-radius-topright: 4px;border-top-left-radius: 4px;border-top-right-radius: 4px;}
+.shadow{-webkit-box-shadow:  0 2px 2px -2px black;
+	   -moz-box-shadow: 0 2px 2px -2px black;
+	        box-shadow: 0 2px 2px -2px black;}
+
+/*****   form elements *******/
+.field{width: 200px; -webkit-border-radius: 4px;-moz-border-radius: 4px;border-radius: 4px;-moz-box-shadow: inset 1px 1px 2px #ccc; -webkit-box-shadow: inset 1px 1px 2px #ccc; box-shadow: inset 1px 1px 2px #ccc; border: 1px solid #ccc; height: 26px; line-height: 26px; text-indent: 8px; font-size: 12px; color: #888;}
+  /* Replacement for the label, becomes the link to show/hide the UL */
+		.enhancedtrigger{
+border: none;			height: 29px;width:174px;
+line-height: 29px; text-indent: 6px;
+			background: url(../images/bg_select.png) top left no-repeat;
+			display:block;
+		}
+		.enhancedtriggeractive{
+			background-position: bottom left;
+		}
+
+		/* style of the UL */
+		.dropdownreplacement{
+			background:white;
+			border:1px solid #999;
+			border-bottom:none;
+			list-style-type:none;
+			padding:0;
+			margin:0;
+			position:absolute;
+			top:0;
+			left:-999em;
+			width:16em;
+		}
+		.dropdownreplacement a{
+			padding:4px;
+			display:block;
+			text-decoration:none;
+			color:#666;
+			border-bottom:1px solid #999;
+		}
+		.dropdownreplacement a:hover{
+			background:#eee;
+		}
+		.selectparent{
+			position:relative;
+		}
+
+		/* class to be added to show the UL */
+		.enhanceddropdownvisible{
+			left:0;
+			right:0;
+		}
+		.dropdownreplacement a.disable{background: #ccc;}
+
+
+/*****   buttons *******/
+.buttons{display: block; width: auto;  padding: 22px 0;}
+#public .buttons{margin: 0 0 12px 332px;}
+#comparison .buttons{margin: 0 0 12px 232px;}
+.button{background: url(../images/bg_button.jpg) top left repeat-x; display: block; height: 31px; line-height:31px; padding: 0 16px ; font-size: 13px; color: #fff; text-align:center; float: right;-webkit-border-radius: 4px;-moz-border-radius: 4px;border-radius: 4px; display: inline;}
+.button:hover{background-position: bottom left; color: #fff;}
+.button img{float: left; margin-left: -6px;}
+.buttons .button{margin: 0 3px;}
+a.home{float: left; display:block; width: 70px; position: absolute; margin: -12px 0 0 12px;}
+
+
+/*****   text *******/
+
+h1{ text-align:center; font-size: 24px;color: #296c9c; }
+	h1 span{font-family: "Museo100";}
+h2{color: #579211; margin: 0 0 5px 0; font-size: 18px;font-weight: normal;  }
+h4{font-size: 11px; color: #999;}
+
+a{color: #237ab1; text-decoration:none;font-size: inherit; line-height: 16px;}
+a:hover{color: #635675; }
+p{margin-bottom: 9px;color: #777; line-height: 18px;}
+span, a span, b{line-height: inherit; color: inherit; font-size: inherit; font-weight:inherit; }
+b{font-weight: bold;}
+strong{line-height: inherit; color: inherit; font-size: inherit;  }
+
+/*****   header / subheader  *******/
+
+#header{ width: 100%; height: 55px;}
+.logo{margin: 14px 0; }
+
+.nav{float: right; list-style-type: none; height: 55px;}
+.nav li{display: inline; float: left; height: 55px;}
+.nav li.active{background: url(../images/nav_active.png) bottom center no-repeat;}
+.nav li.active a{color: #fff;}
+.nav a{color: #c9e0f0; padding: 0 13px; height: 55px; line-height: 55px; font-size: 15px;}
+.nav a:hover{color: #fff;}
+
+
+.subHead{background: #f8f8f8; border-bottom: 1px solid #ccc;  padding: 20px 0; }
+	#details .subHead h1, #details .address{text-align: left;}
+.subHead .pad{padding: 0 0 0 18px; float: left; clear: both; margin: 0; }
+.subHead .address{margin: 10px 0 0 0; text-align:center;}
+.banner{position: absolute; margin:10px 0 0 596px;}
+a.back{display: block; margin: 0 0 12px 0; background: url(../images/back.png) center left no-repeat; padding: 0 0 0 14px;}
+
+
+/*****   footer  *******/
+
+#footer{width: 960px; clear: both;margin: 5px 0 20px 0; float: left; padding: 10px 0;}
+#footer p{ color: #bbb; font-size: 12px;}
+
+
+
+/*****  table  *******/
+.filters div{float: left; color: #fff;margin: 0 14px 0 0;}
+.filters label{float: left; height: 29px; line-height:29px; font-size: 14px; color: gray; vertical-align: bottom;}
+.filters .select{float: left; margin-left: 6px;}
+.filters .dropDownContainer{margin-left: 15px; margin-top: 10px;}
+table{width: 100%;border: 1px solid #ddd; bord }
+th, td{vertical-align: middle; padding: 7px 0; border-bottom: 1px solid #ddd; }
+th{background: #dfe4e8; text-align:center;}
+td.rank{text-align:center; font-size: 15px; color: #888;}
+th.dealer{text-align: left;}
+td.sites{text-align:center;}
+td.reviews{text-align:center;}
+td.score{text-align:center; color: #449e1e;}
+tr.alt td{background: #f6f6f6;}
+
+tr.highlight td{color: #fff; background: #2d6c98}
+tr.highlight a{color: #cae0ef}
+
+
+/*****   content  *******/
+.overlay{display: none;}
+#score{}
+
+
+
+/*****  dealer details  *******/
+.columns{float: left; width: 960px; clear: both;}
+#details .col1{float: left; width: 553px;}
+#details .col2{float: left; width: 400px; background: #eff3f5; border-left: 1px solid #dcdad9;}
+#details  .block{margin: 30px}
+#details .columns h1{font-size: 19px; color: #000; margin: 0 0 12px 0; }
+hr{border-top: 1px solid #ddd; border-bottom: 2px solid #fff; background: none;}
+#details .col2 table{border: none; border-top: 1px solid #ddd;}
+
+.avgReview{border: 1px solid #ddd; background: #fbfbfb; padding: 14px; color: #f37f29; margin: 0 auto 14px auto; width: 300px;}
+.avgReview span{padding-right: 10px;}
+#details .row{float: left; width: 100%; clear: both; border-bottom: 2px solid #ddd; margin: 8px 0;padding-bottom: 8px;}
+#details .col1 .row .col1{ width: 120px; }
+#details .col2 h1{margin-bottom: 40px;}
+#details .col1 .row .col2{background: none; width: 360px;border: none; }
+#details .col1 .row .col1 img{display: block; margin-bottom: 5px; width: 40px;}
+#details .stars .date{float: right; color: #999; font-size: 11px;}
+.reviews .row .button{float: right;margin: 0;}
+
+.score h2{font-size: 14px; color: #666; text-align:center;}
+.score .button{float: none; display: block; margin: 0 auto; width: 130px;}
+.score .about{font-size: 11px; margin: 0 0 -12px -100px; float: right;}
+
+
+/*****  find dealer *******/
+#search .col1{width: 212px; float: left;}
+#search .col2{width: 668px; float: left; margin-left: 30px; margin-bottom: 40px;}
+
+.search{background: #f0f3f5; margin-bottom: 20px;}
+.search h1{background: #2e7bb1; color: #fff; text-indent: 10px; height: 34px; line-height: 34px; font-size: 15px;text-align: left;}
+.search .field{width: 172px;}
+.search hr{margin-top: 20px;}
+.search .or{width: 30px; text-align:center; font-size: 12px; color: #888; background: #f0f3f5; margin: -9px auto 0;}
+.search .pad{padding-bottom: 0; }
+.search .button{margin-bottom: 20px;}
+
+#search p.default{color: #2a70a1; text-align:center; font-size: 16px; line-height: 20px; padding: 40px;}
+#search .noResults h1{font-size: 16px; margin: 0 0 10px 0;}
+#search .noResults{color: #777; padding-top: 40px;}
+#search .row .button{float: right;}
+#search .header{font-size: 16px; border-bottom: 2px solid #ddd; padding: 0 0 12px 0; color: #000;}
+#search .header span{color: #2e7bb1;}
+#search .row{border-bottom: 2px solid #ddd; padding: 16px 0; color: #555;}
+#search .row h1{font-size: 16px; text-align: left; margin: 0 0 4px 0;}
+
+
