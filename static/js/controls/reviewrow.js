@@ -62,6 +62,7 @@ $(document).ready(function() {
         initialize: function() {
             var self = this;
             this.inDocument(function() {
+                console.log('hey there')
                 self.$review().content(self.review().slice(0, 140) + '<a href="/products">...More</a>');
                 self.$reviewsStarSection().content(
                     G.controls.StarDisplay.create()
