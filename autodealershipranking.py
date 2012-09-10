@@ -3,6 +3,7 @@ from google.appengine.ext import db
 from google.appengine.ext import webapp
 from google.appengine.api import mail
 from google.appengine.api.datastore import Key
+from google.appengine.api import memcache
 from google.appengine.ext.webapp.util import run_wsgi_app
 import random
 import datetime
@@ -14,45 +15,45 @@ from sets import Set
 import re
 
 class Dealership(db.Model):
-    Location_Code = db.StringProperty()   
-    Location_Name = db.StringProperty()    
-    Location_Brand = db.StringProperty()    
-    Location_Address = db.StringProperty()    
-    Location_City = db.StringProperty()    
-    Location_State = db.StringProperty()    
-    Location_Zip = db.StringProperty()    
-    Average_star_ranking_across_sites = db.FloatProperty()    
-    Reputation_Score = db.IntegerProperty()  
-    ScoreWeighted_Rating = db.IntegerProperty()      
-    ScoreVisibility = db.IntegerProperty()      
-    ScoreSpread = db.IntegerProperty()      
-    ScoreVolume = db.IntegerProperty()     
-    ScoreTime = db.IntegerProperty()      
-    ScoreLength = db.IntegerProperty()      
-    Total_number_of_reviews = db.IntegerProperty()     
-    Number_of_review_sites_with_reviews = db.IntegerProperty() 
-     
+    Location_Code = db.StringProperty()
+    Location_Name = db.StringProperty()
+    Location_Brand = db.StringProperty()
+    Location_Address = db.StringProperty()
+    Location_City = db.StringProperty()
+    Location_State = db.StringProperty()
+    Location_Zip = db.StringProperty()
+    Average_star_ranking_across_sites = db.FloatProperty()
+    Reputation_Score = db.IntegerProperty()
+    ScoreWeighted_Rating = db.IntegerProperty()
+    ScoreVisibility = db.IntegerProperty()
+    ScoreSpread = db.IntegerProperty()
+    ScoreVolume = db.IntegerProperty()
+    ScoreTime = db.IntegerProperty()
+    ScoreLength = db.IntegerProperty()
+    Total_number_of_reviews = db.IntegerProperty()
+    Number_of_review_sites_with_reviews = db.IntegerProperty()
+
     One_Review = db.TextProperty()
-    One_Review_Name = db.StringProperty() 
-    One_Review_Location = db.StringProperty() 
-    One_Review_Date = db.StringProperty() 
-    One_Review_Ranking = db.FloatProperty() 
-       
-    Two_Review = db.TextProperty()  
-    Two_Review_Name = db.StringProperty() 
-    Two_Review_Location = db.StringProperty() 
-    Two_Review_Date = db.StringProperty() 
-    Two_Review_Ranking = db.FloatProperty()      
-      
-    Three_Review = db.TextProperty()       
-    Three_Review_Name = db.StringProperty() 
-    Three_Review_Location = db.StringProperty() 
-    Three_Review_Date = db.StringProperty() 
-    Three_Review_Ranking = db.FloatProperty()      
-     
-    Locations_ranking_in_State = db.IntegerProperty()         
+    One_Review_Name = db.StringProperty()
+    One_Review_Location = db.StringProperty()
+    One_Review_Date = db.StringProperty()
+    One_Review_Ranking = db.FloatProperty()
+
+    Two_Review = db.TextProperty()
+    Two_Review_Name = db.StringProperty()
+    Two_Review_Location = db.StringProperty()
+    Two_Review_Date = db.StringProperty()
+    Two_Review_Ranking = db.FloatProperty()
+
+    Three_Review = db.TextProperty()
+    Three_Review_Name = db.StringProperty()
+    Three_Review_Location = db.StringProperty()
+    Three_Review_Date = db.StringProperty()
+    Three_Review_Ranking = db.FloatProperty()
+
+    Locations_ranking_in_State = db.IntegerProperty()
     Locations_Ranking_by_brand = db.IntegerProperty()
-    
+
 class Order(db.Model):
     email = db.StringProperty()
     dealershipName = db.StringProperty()
@@ -61,31 +62,34 @@ class Order(db.Model):
     phoneNumber = db.StringProperty()
     optimusUserId = db.StringProperty()
 
-def makeQuery(filters, orderBy=None, fetchQty=0):
-    query = db.Query(Dealership)
-    if orderBy:
-        query.order(orderBy)
-    keys = [key for key in filters.keys() if filters[key]['value'] and filters[key]['value']]
-    for key in keys:
-        query.filter(key + ' ' + filters[key]['operator'] + ' ', filters[key]['value'])
+def makeQuery(filters, orderBy=None, fetchQty=0,  memcache_key=None):
+    query = memcache.get(memcache_key)
+    if query is None:
+        query = db.Query(Dealership)
+        if orderBy:
+            query.order(orderBy)
+        keys = [key for key in filters.keys() if filters[key]['value'] and filters[key]['value']]
+        for key in keys:
+            query.filter(key + ' ' + filters[key]['operator'] + ' ', filters[key]['value'])
+        memcache.set(memcache_key, query or '', 60)
     return query.fetch(fetchQty)
 
 def getPropertiesList(all_dealerships_query, property, sort=True):
     if property == 'Location_Brand':
-        property_list = list(set(d.Location_Brand.split(",")[0] for d in all_dealerships_query if d.Location_Brand))
+        property_list = list(set(d.Location_Brand.split(",")[0].lower().title() for d in all_dealerships_query if d.Location_Brand))
     elif property == 'Location_State':
         property_list = list(set(d.Location_State for d in all_dealerships_query if d.Location_State))
     if sort:
         property_list.sort()
-    return property_list   
+    return property_list
 
 class MainPage(webapp.RequestHandler):
     def get(self):
 
         html = open('MainRankPage.html').read()
-        
+
         myTemplate = HtmlTemplate()
-        
+
         myTemplate.addHeaders([
             "http://quickui.org/release/quickui.catalog.css",
             "http://code.jquery.com/jquery-1.7.2.min.js",
@@ -97,39 +101,43 @@ class MainPage(webapp.RequestHandler):
             "/static/js/controls/rankresult.js",
             "/static/js/pages/homepage.js"
         ]);
-        
+
         brandFilter = self.request.get('brand')
         stateFilter = self.request.get('state')
-        
+
         data = {}
-        
-        all_dealerships = db.Query(Dealership).fetch(1000000) 
-        
+
+        memcache_key = 'all_dealerships'
+        all_dealerships = memcache.get(memcache_key)
+        if all_dealerships is None:
+            all_dealerships =  all_dealerships = db.Query(Dealership).fetch(1000000)
+            memcache.set(memcache_key, all_dealerships or '', 60)
+
         data['brands_list'] = getPropertiesList(all_dealerships, 'Location_Brand')
-        data['states_list'] = getPropertiesList(all_dealerships, 'Location_State') 
-        
+        data['states_list'] = getPropertiesList(all_dealerships, 'Location_State')
+
         dealerships_query = makeQuery(filters={
             'Location_Brand': {
-                'value': brandFilter,
+                'value': brandFilter.upper(),
                 'operator': '='
-            }, 
+            },
             'Location_State': {
                 'value': stateFilter,
                 'operator': '='
-            }, 
-        }, orderBy='-Reputation_Score', fetchQty=20)
-        
+            },
+        }, orderBy='-Reputation_Score', fetchQty=20, memcache_key='dealerships_%s_%s' % (brandFilter, stateFilter))
+
         data['rankResults'] = []
         for rank, d in enumerate(dealerships_query):
             data['rankResults'].append({
                 'rank': rank + 1,
                 'hrefPath': '/store/%s' % d.key().name(),
-                'dealership': d.Location_Name,
+                'dealership': d.Location_Name.lower().title(),
                 'state': d.Location_State,
                 'numberReviews': d.Total_number_of_reviews,
                 'score': d.Reputation_Score
             })
-            
+
         script = """
                 $(document).ready(function() {
                     $(".inline").colorbox({inline:true, width:"880", height:"700"});
@@ -140,23 +148,23 @@ class MainPage(webapp.RequestHandler):
                                 'brand': '%s',
                                 'state': '%s'
                             })
-                    )               
+                    )
                 });
             """ % (
-                   simplejson.dumps(data), 
-                   brandFilter or 'All Brands', 
+                   simplejson.dumps(data),
+                   brandFilter or 'All Brands',
                    stateFilter or 'All States'
                 )
 
-        self.response.out.write(myTemplate.addBody(html).addScript(script).buildPage()) 
+        self.response.out.write(myTemplate.addBody(html).addScript(script).buildPage())
 
 class PublicComparison(webapp.RequestHandler):
     def get(self, locationCode):
-        
+
         html = open('PublicComparisonPage.html').read()
-        
+
         myTemplate = HtmlTemplate()
-        
+
         myTemplate.addHeaders([
             "http://quickui.org/release/quickui.catalog.css",
             "http://code.jquery.com/jquery-1.7.2.min.js",
@@ -168,14 +176,14 @@ class PublicComparison(webapp.RequestHandler):
             "/static/js/controls/rankresult.js",
             "/static/js/pages/publicrankingpage.js"
         ]);
-        
+
         dealership = Dealership.get_by_key_name(str(locationCode))
-      
+
         brandFilter = self.request.get('brand')
         stateFilter = self.request.get('state')
-        
+
         data = {
-            'dealershipName': dealership.Location_Name,
+            'dealershipName': dealership.Location_Name.lower().title(),
             'dealershipLocationCode': dealership.key().name(),
             'address': {
                 'street': dealership.Location_Address,
@@ -184,28 +192,28 @@ class PublicComparison(webapp.RequestHandler):
             'brands_list': (),
             'rankResults': []
         }
-        
-        all_dealerships = db.Query(Dealership).fetch(1000000) 
-        
+
+        all_dealerships = db.Query(Dealership).fetch(1000000)
+
         data['brands_list'] = getPropertiesList(all_dealerships, 'Location_Brand')
-        data['states_list'] = getPropertiesList(all_dealerships, 'Location_State')  
+        data['states_list'] = getPropertiesList(all_dealerships, 'Location_State')
 
         dealerships_query = makeQuery(filters={
             'Location_Brand': {
-                'value': brandFilter,
+                'value': brandFilter.upper(),
                 'operator': '='
-            }, 
+            },
             'Location_State': {
                 'value': stateFilter,
                 'operator': '='
-            }, 
-        }, orderBy='-Reputation_Score', fetchQty=20)
-        
+            },
+        }, orderBy='-Reputation_Score', fetchQty=20, memcache_key='dealerships_public_%s_%s' % (brandFilter, stateFilter))
+
         dealership_rank = len(makeQuery(filters={
             'Location_Brand': {
-                'value': brandFilter,
+                'value': brandFilter.upper(),
                 'operator': '='
-            }, 
+            },
             'Location_State': {
                 'value': stateFilter,
                 'operator': '='
@@ -214,17 +222,17 @@ class PublicComparison(webapp.RequestHandler):
                 'value': dealership.Reputation_Score,
                 'operator': '>'
             }
-        }, orderBy='-Reputation_Score', fetchQty=10000000))
-        
+        }, orderBy='-Reputation_Score', fetchQty=10000000, memcache_key='dealerships_public_%s_%s_%s' % (brandFilter, stateFilter, dealership.Reputation_Score)))
+
         if dealership_rank <= 20 and not any([True for d in dealerships_query if d.key() == dealership.key()]):
-            dealerships_query.insert(dealership_rank, dealership)  
-        
-        for rank, d in enumerate(dealerships_query):        
+            dealerships_query.insert(dealership_rank, dealership)
+
+        for rank, d in enumerate(dealerships_query):
             data['rankResults'].append({
                 'hrefPath': '/store/%s' % d.key().name(),
                 'highlight': d.key() == dealership.key(),
                 'rank': rank + 1,
-                'dealership': d.Location_Name,
+                'dealership': d.Location_Name.lower().title(),
                 'state': d.Location_State,
                 'numberReviews': d.Total_number_of_reviews,
                 'score': d.Reputation_Score
@@ -232,16 +240,16 @@ class PublicComparison(webapp.RequestHandler):
 
         if dealership_rank > 20:
             data['rankResults'].append({
-                'highlight': True,                                     
+                'highlight': True,
                 'rank': dealership_rank,
                 'hrefPath': '/store/%s' % dealership.key().name(),
-                'dealership': dealership.Location_Name,
+                'dealership': dealership.Location_Name.lower().title(),
                 'state': d.Location_State,
                 'numberReviews': dealership.Total_number_of_reviews,
                 'score': dealership.Reputation_Score
-            })   
-                   
-            
+            })
+
+
         script = """
                 G.html = $(%s)
                 $(document).ready(function() {
@@ -253,24 +261,24 @@ class PublicComparison(webapp.RequestHandler):
                                 'brand': '%s',
                                 'state': '%s'
                             })
-                    )               
+                    )
                 });
             """ % (
-                   simplejson.dumps(html), 
-                   simplejson.dumps(data), 
-                   brandFilter or 'All Brands', 
+                   simplejson.dumps(html),
+                   simplejson.dumps(data),
+                   brandFilter or 'All Brands',
                    stateFilter or 'All States'
                 )
-            
-        self.response.out.write(myTemplate.addBody(html).addScript(script).buildPage()) 
+
+        self.response.out.write(myTemplate.addBody(html).addScript(script).buildPage())
 
 class FindDealer(webapp.RequestHandler):
     def get(self):
-        
+
         html = open('FindDealerPage.html').read()
-        
+
         myTemplate = HtmlTemplate()
-        
+
         myTemplate.addHeaders([
             "http://quickui.org/release/quickui.catalog.css",
             "http://code.jquery.com/jquery-1.7.2.min.js",
@@ -283,26 +291,26 @@ class FindDealer(webapp.RequestHandler):
             "/static/js/controls/dealershipResultRow.js",
             "/static/js/pages/finddealershippage.js"
         ]);
-        
+
         stateFilter = self.request.get('state')
         zipFilter = self.request.get('zip')
-        cityFilter = self.request.get('city')  
-               
-        all_dealerships = db.Query(Dealership).fetch(1000000)        
-               
+        cityFilter = self.request.get('city')
+
+        all_dealerships = db.Query(Dealership).fetch(1000000)
+
         data = {
             'zipFilter': zipFilter,
             'stateFilter': stateFilter,
             'states_list': ['Select State'] + getPropertiesList(all_dealerships, 'Location_State'),
             'dealerships_list': []
-        }     
-        
+        }
+
         if any([zipFilter, cityFilter, stateFilter]):
             dealerships_query = makeQuery(filters={
                 'Location_Zip': {
                     'value': zipFilter,
                     'operator': '='
-                }, 
+                },
                 'Location_City': {
                     'value': cityFilter,
                     'operator': '='
@@ -310,16 +318,16 @@ class FindDealer(webapp.RequestHandler):
                 'Location_State': {
                     'value': stateFilter,
                     'operator': '='
-                }                                                                                                
-            }, fetchQty=1000000)
-            
+                }
+            }, fetchQty=1000000, memcache_key='dealerships_find_%s_%s_%s' % (cityFilter, stateFilter, zipFilter)) 
+
             for d in dealerships_query:
                 data['dealerships_list'].append({
                     'hrefPath': '/publicranking/%s' % d.key().name(),
-                    'name': d.Location_Name,
+                    'name': d.Location_Name.lower().title(),
                     'address': '%s <br/> %s, %s %s' % (d.Location_Address, d.Location_City, d.Location_State, d.Location_Zip)
-                })     
-                        
+                })
+
             self.response.out.write(simplejson.dumps(data))
         else:
             script = """
@@ -327,20 +335,20 @@ class FindDealer(webapp.RequestHandler):
                         $("#root").append(
                             G.controls.FindDealershipPage.create()
                                 .pageData(%s)
-                        )               
+                        )
                     });
                 """ % simplejson.dumps(data)
-                
-                      
-            self.response.out.write(myTemplate.addBody(html).addScript(script).buildPage()) 
+
+
+            self.response.out.write(myTemplate.addBody(html).addScript(script).buildPage())
 
 class Buy(webapp.RequestHandler):
     def get(self):
-        
+
         html = open('buy.html').read()
-        
+
         myTemplate = HtmlTemplate()
-        
+
         myTemplate.addHeaders([
             "https://reputation.securepaypage.litle.com/LitlePayPage/litle-api.js",
             "https://crypto-js.googlecode.com/files/2.5.3-crypto-sha256-hmac.js",
@@ -352,10 +360,10 @@ class Buy(webapp.RequestHandler):
             "/static/js/jquery.colorbox.js",
             "/static/js/enhanceselect.js",
             "/static/js/controls/textField.js",
-            "/static/js/G.js",                               
+            "/static/js/G.js",
             "/static/js/pages/buypage.js"
         ]);
-        
+
         script = """
                  var page;
                 var statusCodes = {
@@ -378,7 +386,7 @@ class Buy(webapp.RequestHandler):
                     17 : "Membership does not exist",
                     18 : "Zipcode missing",
                     19 : "Duplicate Username"
-                }               
+                }
                 var accountInfo = {
                     "account_email":"sdfzzzdsfTester@test.com",
                     "account_first_name":"",
@@ -387,7 +395,7 @@ class Buy(webapp.RequestHandler):
                     "account_number":null,
                     "account_birth_year":"",
                     "account_birth_month":"",
-                    "account_birth_day":"",        
+                    "account_birth_day":"",
                     "payment_method_type": null,
                     "exp_year":"2012",
                     "exp_month":"01",
@@ -411,10 +419,10 @@ class Buy(webapp.RequestHandler):
                     "officer_number":null,
                     "routing_number":null,
                     "username":null
-                }   
-                
+                }
+
                 var entityInfos = [{
-                    "is_primary": true,      
+                    "is_primary": true,
                     "plans":null,
                     "entity_type": "business",
                     "creation_profile_public": false,
@@ -425,8 +433,8 @@ class Buy(webapp.RequestHandler):
                     "address_zip":null,
                     "address_state":null,
                     "address_country":"USA"
-                }];                                         
-                
+                }];
+
                 var responseCodes = {
                     1 : 'Timeout contacting server. Please retry.',
                     2 : 'Litle API not loaded. Please reload the page.',
@@ -437,28 +445,28 @@ class Buy(webapp.RequestHandler):
                     875 : 'We are experiencing technical difficulties. Please try again later or call 877-720-6488',
                     876 : 'Invalid card number. (Failure from Server)',
                     889 : 'We are experiencing technical difficulties. Please try again later or call 877-720-6488'
-                }                 
-                
-                $(document).ready(function() {              
-                
+                }
+
+                $(document).ready(function() {
+
                     $("#root").append(
                        page = G.controls.BuyPage.create()
-                    )               
+                    )
                 });
-            """       
+            """
 
-        self.response.out.write(myTemplate.addBody(html).addScript(script).buildPage()) 
+        self.response.out.write(myTemplate.addBody(html).addScript(script).buildPage())
 
 class CreateAccount(webapp.RequestHandler):
     def get(self):
-        
+
         email = self.request.get('email')
         dealershipName = self.request.get('dealershipName')
         packageSelected = self.request.get('packageSelected')
         personName = self.request.get('personName')
         phoneNumber = self.request.get('phoneNumber')
         optimusUserId = self.request.get('optimusUserId')
-        
+
         o = Order(
             email=email,
             dealershipName=dealershipName,
@@ -467,18 +475,18 @@ class CreateAccount(webapp.RequestHandler):
             phoneNumber=phoneNumber,
             optimusUserId=optimusUserId
         )
-        
+
         db.put(o)
-        
-        self.response.out.write("Successful") 
-        
+
+        self.response.out.write("Successful")
+
 class StorePage(webapp.RequestHandler):
     def get(self, locationCode):
-        
+
         html = open('DealershipPage.html').read()
-        
+
         myTemplate = HtmlTemplate()
-        
+
         myTemplate.addHeaders([
             "http://quickui.org/release/quickui.catalog.css",
             "http://code.jquery.com/jquery-1.7.2.min.js",
@@ -493,14 +501,14 @@ class StorePage(webapp.RequestHandler):
             "/static/js/controls/rankresult2.js",
             "/static/js/pages/storepage.js"
         ]);
-        
+
 
         dealership = Dealership.get_by_key_name(str(locationCode))
-        
+
         address = ''
         if dealership.Location_City and dealership.Location_State and dealership.Location_Zip:
             address = '%s, %s %s' % (dealership.Location_City, dealership.Location_State, dealership.Location_Zip)
-        
+
         data = {
             'top_dealerships_by_brand': [],
             'top_dealerships_by_state': [],
@@ -527,7 +535,7 @@ class StorePage(webapp.RequestHandler):
             ],
             'reviewCount': dealership.Total_number_of_reviews,
             'reviewSiteCount': dealership.Number_of_review_sites_with_reviews  ,
-            'dealershipName': dealership.Location_Name,
+            'dealershipName': dealership.Location_Name.lower().title(),
             'dealershipBrand': dealership.Location_Brand or 'Brand',
             'dealershipState': dealership.Location_State or 'State',
             'averageStarRating': dealership.Average_star_ranking_across_sites,
@@ -542,17 +550,17 @@ class StorePage(webapp.RequestHandler):
             'Location_Brand': {
                 'value': dealership.Location_Brand,
                 'operator': '='
-            } 
-        }, orderBy='-Reputation_Score', fetchQty=10)
+            }
+        }, orderBy='-Reputation_Score', fetchQty=10, memcache_key='dealerships_topBrand_%s' % dealership.Location_Brand)
 
 
         top_dealerships_by_state_query = makeQuery(filters={
             'Location_State': {
                 'value': dealership.Location_State,
                 'operator': '='
-            } 
-        }, orderBy='-Reputation_Score', fetchQty=10)   
-        
+            }
+        }, orderBy='-Reputation_Score', fetchQty=10, memcache_key='dealerships_topState_%s' % dealership.Location_State)
+
         dealership_rank_by_state = len(makeQuery(filters={
             'Location_State': {
                 'value': dealership.Location_State,
@@ -562,11 +570,11 @@ class StorePage(webapp.RequestHandler):
                 'value': dealership.Reputation_Score,
                 'operator': '>'
             }
-        }, orderBy='-Reputation_Score', fetchQty=10000000))
-        
+        }, orderBy='-Reputation_Score', fetchQty=10000000, memcache_key='dealerships_rankState_%s_%s' % (dealership.Location_State, dealership.Reputation_Score)))
+
         if dealership_rank_by_state <= 10 and not any([True for d in top_dealerships_by_state_query if d.key() == dealership.key()]):
-            top_dealerships_by_state_query.insert(dealership_rank_by_state, dealership)         
- 
+            top_dealerships_by_state_query.insert(dealership_rank_by_state, dealership)
+
         dealership_rank_by_brand = len(makeQuery(filters={
             'Location_Brand': {
                 'value': dealership.Location_Brand,
@@ -576,62 +584,62 @@ class StorePage(webapp.RequestHandler):
                 'value': dealership.Reputation_Score,
                 'operator': '>'
             }
-        }, orderBy='-Reputation_Score', fetchQty=10000000))
-        
+        }, orderBy='-Reputation_Score', fetchQty=10000000, memcache_key='dealerships_rankBrand_%s_%s' % (dealership.Location_Brand, dealership.Reputation_Score)))
+
         if dealership_rank_by_brand <= 10 and not any([True for d in top_dealerships_by_brand_query if d.key() == dealership.key()]):
-            top_dealerships_by_brand_query.insert(dealership_rank_by_brand, dealership)  
-             
+            top_dealerships_by_brand_query.insert(dealership_rank_by_brand, dealership)
+
 
         for rank, d in enumerate(top_dealerships_by_brand_query):
             data['top_dealerships_by_brand'].append({
-                'highlight': d.key() == dealership.key(),  
-                'locationCode': d.key().name(),                                   
+                'highlight': d.key() == dealership.key(),
+                'locationCode': d.key().name(),
                 'rank': rank + 1,
-                'dealership': d.Location_Name,
+                'dealership': d.Location_Name.lower().title(),
                 'score': d.Reputation_Score
             })
 
-        for rank, d in enumerate(top_dealerships_by_state_query):            
+        for rank, d in enumerate(top_dealerships_by_state_query):
             data['top_dealerships_by_state'].append({
                 'highlight': d.key() == dealership.key(),
                 'locationCode': d.key().name(),
                 'rank': rank + 1,
-                'dealership': d.Location_Name,
+                'dealership': d.Location_Name.lower().title(),
                 'score': d.Reputation_Score
-            }) 
+            })
 
         if dealership_rank_by_state > 10:
             data['top_dealerships_by_state'].append({
                 'highlight': True,
-                'locationCode': dealership.key().name(),                                     
+                'locationCode': dealership.key().name(),
                 'rank': dealership_rank_by_state,
-                'dealership': dealership.Location_Name,
+                'dealership': dealership.Location_Name.lower().title(),
                 'score': dealership.Reputation_Score
-            })              
+            })
 
 
         if dealership_rank_by_brand > 10:
             data['top_dealerships_by_brand'].append({
                 'highlight': True,
-                'locationCode': dealership.key().name(),                                     
+                'locationCode': dealership.key().name(),
                 'rank': dealership_rank_by_brand,
-                'dealership': dealership.Location_Name,
+                'dealership': dealership.Location_Name.lower().title(),
                 'score': dealership.Reputation_Score
-            })   
+            })
 
-                                      
+
         script = """
                 $(document).ready(function() {
-            
+
                     $(".inline").colorbox({inline:true, width:"880", height:"700"});
-               
+
                     $("#root").append(
                         G.controls.StorePage.create().pageData(%(pageData)s)
-                    ) 
+                    )
                     if (window.oRepStar === undefined) {
                         window.oRepStar = {};
                       }
-                     window.oRepStar.oScore = new window.RepStar.Score(109466, 
+                     window.oRepStar.oScore = new window.RepStar.Score(109466,
                          {
                              "overallScore":%(overallScore)s,
                              "averageRatingScore":%(weightedAverage)s,
@@ -642,9 +650,9 @@ class StorePage(webapp.RequestHandler):
                              "reviewerScore":%(spread)s
                         }
                     );
-                     window.oRepStar.oScore.init();                                
+                     window.oRepStar.oScore.init();
                 });
-            """ % {                  
+            """ % {
                 'pageData': simplejson.dumps(data),
                 'overallScore': simplejson.dumps(dealership.Reputation_Score),
                 'weightedAverage': simplejson.dumps((dealership.Average_star_ranking_across_sites /5)*100),
@@ -654,14 +662,14 @@ class StorePage(webapp.RequestHandler):
                 'spread': simplejson.dumps(dealership.ScoreSpread),
                 'visibility': simplejson.dumps(dealership.ScoreVisibility)
             }
-                   
 
-        self.response.out.write(myTemplate.addScript(script).addBody(html).buildPage()) 
+
+        self.response.out.write(myTemplate.addScript(script).addBody(html).buildPage())
 
 class Delete(webapp.RequestHandler):
-    
+
     def get(self):
-        
+
         #query = db.Query(Dealership).fetch(1000000)
         #toDelete = []
         #for d in query:
@@ -670,12 +678,12 @@ class Delete(webapp.RequestHandler):
         print 'hi'
 
 class InsertDataBig(webapp.RequestHandler):
-    
-    def get(self):
-        
-        print 'hey'            
 
-        
+    def get(self):
+
+        print 'hey'
+
+
 application = webapp.WSGIApplication(
                                      [
                                          ('/', MainPage),
@@ -687,7 +695,7 @@ application = webapp.WSGIApplication(
                                          ('/finddealer', FindDealer),
                                          ('/createAccount', CreateAccount)
                                      ],
-                                     debug=True)                                     
+                                     debug=True)
 
 def main():
     run_wsgi_app(application)
