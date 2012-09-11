@@ -62,6 +62,10 @@ class Order(db.Model):
     phoneNumber = db.StringProperty()
     optimusUserId = db.StringProperty()
 
+class Session(db.Expando):
+    brand_list = db.TextProperty()
+    state_list = db.TextProperty()
+
 def makeQuery(filters={}, orderBy=None, fetchQty=0,  memcache_key=None):
     memcache_key = memcache_key + "_" + "_".join([str(filters[key]['value']) for key in filters.keys() if filters[key]['value']])
     query = memcache.get(memcache_key)
@@ -75,20 +79,33 @@ def makeQuery(filters={}, orderBy=None, fetchQty=0,  memcache_key=None):
         memcache.set(memcache_key, query or '', 60)
     return query.fetch(fetchQty)
 
-def getPropertiesList(all_dealerships_query, property, sort=True):
-    if property == 'Location_Brand':
-        property_list = list(set(d.Location_Brand.split(",")[0].lower().title() for d in all_dealerships_query if d.Location_Brand))
-    elif property == 'Location_State':
-        property_list = list(set(d.Location_State for d in all_dealerships_query if d.Location_State))
-    if sort:
-        property_list.sort()
-    return property_list
-
 class BasePage(webapp.RequestHandler):
-    def __init__(self):
-        all_dealerships = makeQuery(orderBy='-Reputation_Score', fetchQty=1000000, memcache_key='all_dealerships')
-        self.brands_list = getPropertiesList(all_dealerships, 'Location_Brand')
-        self.state_list = getPropertiesList(all_dealerships, 'Location_State')
+    def init_session(self):
+        ''' Sets self.session to a models.Session object '''
+
+        session_id = self.request.cookies.get('session_id')
+        if session_id:
+            session = Session.get_by_key_name(session_id)
+        else:
+            session = None
+
+        if not session:
+            session_id = ''.join(random.choice('012345689abcdefghijklmnopqrstuvwxyz') for i in range(32))
+            all_dealerships = makeQuery(orderBy='-Reputation_Score', fetchQty=1000000, memcache_key='all_dealerships')
+            session = Session(key_name=session_id, brand_list=self.getPropertiesList(all_dealerships, 'Location_Brand'), state_list=self.getPropertiesList(all_dealerships, 'Location_State'))
+            session.put()
+            self.response.headers.add_header('Set-Cookie', 'session_id=%s; Path=/' % session_id)
+
+        self.session = session
+        
+    def getPropertiesList(self, all_dealerships_query, property, sort=True):
+        if property == 'Location_Brand':
+            property_list = list(set(d.Location_Brand.split(",")[0].lower().title() for d in all_dealerships_query if d.Location_Brand))
+        elif property == 'Location_State':
+            property_list = list(set(d.Location_State for d in all_dealerships_query if d.Location_State))
+        if sort:
+            property_list.sort()
+        return ('|'.join(property_list))
         
     def getTemplate(self, htmlPage, title, pageSpecificHeaders=[]):
         myTemplate = HtmlTemplate()
@@ -119,7 +136,7 @@ class BasePage(webapp.RequestHandler):
 
 class MainPage(BasePage):
     def get(self):
-
+        self.init_session()
         self.getTemplate(htmlPage='MainRankPage.html', title="R4D - Home", pageSpecificHeaders=["/static/css/styles.css"])
 
         brandFilter = self.request.get('brand')
@@ -127,8 +144,8 @@ class MainPage(BasePage):
 
         data = {}
 
-        data['brands_list'] = self.brands_list
-        data['states_list'] = self.state_list
+        data['brands_list'] = self.session.brand_list.split('|')
+        data['states_list'] = self.session.state_list.split('|')
 
         dealerships_query = makeQuery(filters={
             'Location_Brand': {
@@ -174,7 +191,7 @@ class MainPage(BasePage):
 
 class PublicComparison(BasePage):
     def get(self, locationCode):
-
+        self.init_session()
         self.getTemplate(htmlPage='PublicComparisonPage.html', title="R4D - Listings", pageSpecificHeaders=["/static/css/styles.css"])
 
         dealership = Dealership.get_by_key_name(str(locationCode))
@@ -193,8 +210,8 @@ class PublicComparison(BasePage):
             'rankResults': []
         }
 
-        data['brands_list'] = self.brands_list
-        data['states_list'] = self.state_list
+        data['brands_list'] = self.session.brand_list.split('|')
+        data['states_list'] = self.session.state_list.split('|')
 
         dealerships_query = makeQuery(filters={
             'Location_Brand': {
@@ -270,7 +287,7 @@ class PublicComparison(BasePage):
 
 class FindDealer(BasePage):
     def get(self):
-
+        self.init_session()
         self.getTemplate(htmlPage='FindDealerPage.html', title="R4D - Find Dealer", pageSpecificHeaders=["/static/css/stylesDealershipFind.css"])
 
         stateFilter = self.request.get('state')
@@ -280,7 +297,7 @@ class FindDealer(BasePage):
         data = {
             'zipFilter': zipFilter,
             'stateFilter': stateFilter,
-            'states_list': ['Select State'] + self.state_list,
+            'states_list': ['Select State'] + self.session.state_list.split('|'),
             'dealerships_list': []
         }
 
@@ -323,7 +340,7 @@ class FindDealer(BasePage):
 
 class Buy(BasePage):
     def get(self):
-
+        self.init_session()
         self.getTemplate(htmlPage='buy.html', title="R4D - Products", pageSpecificHeaders=["/static/css/stylesBuyPage.css"])
 
         script = """
@@ -444,9 +461,8 @@ class CreateAccount(webapp.RequestHandler):
 
 class StorePage(BasePage):
     def get(self, locationCode):
-
+        self.init_session()
         self.getTemplate(htmlPage='DealershipPage.html', title="R4D - Store", pageSpecificHeaders=["/static/css/stylesStorePage.css"])
-
         dealership = Dealership.get_by_key_name(str(locationCode))
 
         address = ''
@@ -480,7 +496,7 @@ class StorePage(BasePage):
             'reviewCount': dealership.Total_number_of_reviews,
             'reviewSiteCount': dealership.Number_of_review_sites_with_reviews  ,
             'dealershipName': dealership.Location_Name.lower().title(),
-            'dealershipBrand': dealership.Location_Brand.lower().title() or 'Brand',
+            'dealershipBrand': dealership.Location_Brand.lower().title() if dealership.Location_Brand else 'Brand',
             'dealershipState': dealership.Location_State or 'State',
             'averageStarRating': dealership.Average_star_ranking_across_sites,
             'address': {
