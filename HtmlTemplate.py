@@ -19,6 +19,10 @@ class HtmlTemplate():
     def addBody(self, body):
         self.body = body
         return self
+    
+    def addTitle(self, title):
+        self.title = title
+        return self
             
     def addScript(self, script):
         self.script = """

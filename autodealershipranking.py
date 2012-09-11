@@ -62,7 +62,8 @@ class Order(db.Model):
     phoneNumber = db.StringProperty()
     optimusUserId = db.StringProperty()
 
-def makeQuery(filters, orderBy=None, fetchQty=0,  memcache_key=None):
+def makeQuery(filters={}, orderBy=None, fetchQty=0,  memcache_key=None):
+    memcache_key = memcache_key + "_" + "_".join([str(filters[key]['value']) for key in filters.keys() if filters[key]['value']])
     query = memcache.get(memcache_key)
     if query is None:
         query = db.Query(Dealership)
@@ -83,38 +84,51 @@ def getPropertiesList(all_dealerships_query, property, sort=True):
         property_list.sort()
     return property_list
 
-class MainPage(webapp.RequestHandler):
-    def get(self):
-
-        html = open('MainRankPage.html').read()
-
+class BasePage(webapp.RequestHandler):
+    def __init__(self):
+        all_dealerships = makeQuery(orderBy='-Reputation_Score', fetchQty=1000000, memcache_key='all_dealerships')
+        self.brands_list = getPropertiesList(all_dealerships, 'Location_Brand')
+        self.state_list = getPropertiesList(all_dealerships, 'Location_State')
+        
+    def getTemplate(self, htmlPage, title, pageSpecificHeaders=[]):
         myTemplate = HtmlTemplate()
-
+        myTemplate.addBody(open(htmlPage).read()).addTitle(title)
         myTemplate.addHeaders([
             "http://quickui.org/release/quickui.catalog.css",
             "http://code.jquery.com/jquery-1.7.2.min.js",
             "http://quickui.org/release/quickui.js",
-            "/static/css/styles.css",
-            "/static/js/enhanceselect.js",
             "/static/js/jquery.colorbox.js",
+            "/static/js/enhanceselect.js",
+            "/static/js/score1.js",
+            "/static/js/score2.js",
             "/static/js/G.js",
+            "/static/js/controls/textField.js",
+            "/static/js/controls/stardisplay.js",
+            "/static/js/controls/reviewrow.js",
+            "/static/js/controls/dealershipResultRow.js",
             "/static/js/controls/rankresult.js",
-            "/static/js/pages/homepage.js"
+            "/static/js/controls/rankresult2.js",
+            "/static/js/pages/storepage.js",
+            "/static/js/pages/buypage.js",
+            "/static/js/pages/finddealershippage.js",
+            "/static/js/pages/homepage.js",
+            "/static/js/pages/publicrankingpage.js"
         ]);
+        myTemplate.addHeaders(pageSpecificHeaders)
+        self.template = myTemplate
+
+class MainPage(BasePage):
+    def get(self):
+
+        self.getTemplate(htmlPage='MainRankPage.html', title="R4D - Home", pageSpecificHeaders=["/static/css/styles.css"])
 
         brandFilter = self.request.get('brand')
         stateFilter = self.request.get('state')
 
         data = {}
 
-        memcache_key = 'all_dealerships'
-        all_dealerships = memcache.get(memcache_key)
-        if all_dealerships is None:
-            all_dealerships =  all_dealerships = db.Query(Dealership).fetch(1000000)
-            memcache.set(memcache_key, all_dealerships or '', 60)
-
-        data['brands_list'] = getPropertiesList(all_dealerships, 'Location_Brand')
-        data['states_list'] = getPropertiesList(all_dealerships, 'Location_State')
+        data['brands_list'] = self.brands_list
+        data['states_list'] = self.state_list
 
         dealerships_query = makeQuery(filters={
             'Location_Brand': {
@@ -125,7 +139,7 @@ class MainPage(webapp.RequestHandler):
                 'value': stateFilter,
                 'operator': '='
             },
-        }, orderBy='-Reputation_Score', fetchQty=20, memcache_key='dealerships_%s_%s' % (brandFilter, stateFilter))
+        }, orderBy='-Reputation_Score', fetchQty=20, memcache_key='dealerships')
 
         data['rankResults'] = []
         for rank, d in enumerate(dealerships_query):
@@ -156,26 +170,12 @@ class MainPage(webapp.RequestHandler):
                    stateFilter or 'All States'
                 )
 
-        self.response.out.write(myTemplate.addBody(html).addScript(script).buildPage())
+        self.response.out.write(self.template.addScript(script).buildPage())
 
-class PublicComparison(webapp.RequestHandler):
+class PublicComparison(BasePage):
     def get(self, locationCode):
 
-        html = open('PublicComparisonPage.html').read()
-
-        myTemplate = HtmlTemplate()
-
-        myTemplate.addHeaders([
-            "http://quickui.org/release/quickui.catalog.css",
-            "http://code.jquery.com/jquery-1.7.2.min.js",
-            "http://quickui.org/release/quickui.js",
-            "/static/css/styles.css",
-            "/static/js/enhanceselect.js",
-            "/static/js/jquery.colorbox.js",
-            "/static/js/G.js",
-            "/static/js/controls/rankresult.js",
-            "/static/js/pages/publicrankingpage.js"
-        ]);
+        self.getTemplate(htmlPage='PublicComparisonPage.html', title="R4D - Listings", pageSpecificHeaders=["/static/css/styles.css"])
 
         dealership = Dealership.get_by_key_name(str(locationCode))
 
@@ -193,10 +193,8 @@ class PublicComparison(webapp.RequestHandler):
             'rankResults': []
         }
 
-        all_dealerships = db.Query(Dealership).fetch(1000000)
-
-        data['brands_list'] = getPropertiesList(all_dealerships, 'Location_Brand')
-        data['states_list'] = getPropertiesList(all_dealerships, 'Location_State')
+        data['brands_list'] = self.brands_list
+        data['states_list'] = self.state_list
 
         dealerships_query = makeQuery(filters={
             'Location_Brand': {
@@ -207,7 +205,7 @@ class PublicComparison(webapp.RequestHandler):
                 'value': stateFilter,
                 'operator': '='
             },
-        }, orderBy='-Reputation_Score', fetchQty=20, memcache_key='dealerships_public_%s_%s' % (brandFilter, stateFilter))
+        }, orderBy='-Reputation_Score', fetchQty=20, memcache_key='dealerships_public')
 
         dealership_rank = len(makeQuery(filters={
             'Location_Brand': {
@@ -222,9 +220,9 @@ class PublicComparison(webapp.RequestHandler):
                 'value': dealership.Reputation_Score,
                 'operator': '>'
             }
-        }, orderBy='-Reputation_Score', fetchQty=10000000, memcache_key='dealerships_public_%s_%s_%s' % (brandFilter, stateFilter, dealership.Reputation_Score)))
-
-        if dealership_rank <= 20 and not any([True for d in dealerships_query if d.key() == dealership.key()]):
+        }, orderBy='-Reputation_Score', fetchQty=10000000, memcache_key='dealerships_public'))
+        
+        if dealership_rank <= 20 and all(d.key() == dealership.key() for d in dealerships_query):
             dealerships_query.insert(dealership_rank, dealership)
 
         for rank, d in enumerate(dealerships_query):
@@ -251,7 +249,6 @@ class PublicComparison(webapp.RequestHandler):
 
 
         script = """
-                G.html = $(%s)
                 $(document).ready(function() {
                     $(".inline").colorbox({inline:true, width:"880", height:"700"});
                     $("#root").append(
@@ -264,44 +261,26 @@ class PublicComparison(webapp.RequestHandler):
                     )
                 });
             """ % (
-                   simplejson.dumps(html),
                    simplejson.dumps(data),
                    brandFilter or 'All Brands',
                    stateFilter or 'All States'
                 )
 
-        self.response.out.write(myTemplate.addBody(html).addScript(script).buildPage())
+        self.response.out.write(self.template.addScript(script).buildPage())
 
-class FindDealer(webapp.RequestHandler):
+class FindDealer(BasePage):
     def get(self):
 
-        html = open('FindDealerPage.html').read()
-
-        myTemplate = HtmlTemplate()
-
-        myTemplate.addHeaders([
-            "http://quickui.org/release/quickui.catalog.css",
-            "http://code.jquery.com/jquery-1.7.2.min.js",
-            "http://quickui.org/release/quickui.js",
-            "/static/css/stylesDealershipFind.css",
-            "/static/js/enhanceselect.js",
-            "/static/js/jquery.colorbox.js",
-            "/static/js/G.js",
-            "/static/js/controls/textField.js",
-            "/static/js/controls/dealershipResultRow.js",
-            "/static/js/pages/finddealershippage.js"
-        ]);
+        self.getTemplate(htmlPage='FindDealerPage.html', title="R4D - Find Dealer", pageSpecificHeaders=["/static/css/stylesDealershipFind.css"])
 
         stateFilter = self.request.get('state')
         zipFilter = self.request.get('zip')
         cityFilter = self.request.get('city')
 
-        all_dealerships = db.Query(Dealership).fetch(1000000)
-
         data = {
             'zipFilter': zipFilter,
             'stateFilter': stateFilter,
-            'states_list': ['Select State'] + getPropertiesList(all_dealerships, 'Location_State'),
+            'states_list': ['Select State'] + self.state_list,
             'dealerships_list': []
         }
 
@@ -319,7 +298,7 @@ class FindDealer(webapp.RequestHandler):
                     'value': stateFilter,
                     'operator': '='
                 }
-            }, fetchQty=1000000, memcache_key='dealerships_find_%s_%s_%s' % (cityFilter, stateFilter, zipFilter)) 
+            }, fetchQty=1000000, memcache_key='dealerships_find') 
 
             for d in dealerships_query:
                 data['dealerships_list'].append({
@@ -340,29 +319,12 @@ class FindDealer(webapp.RequestHandler):
                 """ % simplejson.dumps(data)
 
 
-            self.response.out.write(myTemplate.addBody(html).addScript(script).buildPage())
+            self.response.out.write(self.template.addScript(script).buildPage())
 
-class Buy(webapp.RequestHandler):
+class Buy(BasePage):
     def get(self):
 
-        html = open('buy.html').read()
-
-        myTemplate = HtmlTemplate()
-
-        myTemplate.addHeaders([
-            "https://reputation.securepaypage.litle.com/LitlePayPage/litle-api.js",
-            "https://crypto-js.googlecode.com/files/2.5.3-crypto-sha256-hmac.js",
-            "http://quickui.org/release/quickui.catalog.css",
-            "http://code.jquery.com/jquery-1.7.2.min.js",
-            "http://quickui.org/release/quickui.js",
-            "/static/css/stylesBuyPage.css",
-            "/static/js/enhanceselect.js",
-            "/static/js/jquery.colorbox.js",
-            "/static/js/enhanceselect.js",
-            "/static/js/controls/textField.js",
-            "/static/js/G.js",
-            "/static/js/pages/buypage.js"
-        ]);
+        self.getTemplate(htmlPage='buy.html', title="R4D - Products", pageSpecificHeaders=["/static/css/stylesBuyPage.css"])
 
         script = """
                  var page;
@@ -455,7 +417,7 @@ class Buy(webapp.RequestHandler):
                 });
             """
 
-        self.response.out.write(myTemplate.addBody(html).addScript(script).buildPage())
+        self.response.out.write(self.template.addScript(script).buildPage())
 
 class CreateAccount(webapp.RequestHandler):
     def get(self):
@@ -480,28 +442,10 @@ class CreateAccount(webapp.RequestHandler):
 
         self.response.out.write("Successful")
 
-class StorePage(webapp.RequestHandler):
+class StorePage(BasePage):
     def get(self, locationCode):
 
-        html = open('DealershipPage.html').read()
-
-        myTemplate = HtmlTemplate()
-
-        myTemplate.addHeaders([
-            "http://quickui.org/release/quickui.catalog.css",
-            "http://code.jquery.com/jquery-1.7.2.min.js",
-            "http://quickui.org/release/quickui.js",
-            "/static/css/stylesStorePage.css",
-            "/static/js/jquery.colorbox.js",
-            "/static/js/score1.js",
-            "/static/js/score2.js",
-            "/static/js/G.js",
-            "/static/js/controls/stardisplay.js",
-            "/static/js/controls/reviewrow.js",
-            "/static/js/controls/rankresult2.js",
-            "/static/js/pages/storepage.js"
-        ]);
-
+        self.getTemplate(htmlPage='DealershipPage.html', title="R4D - Store", pageSpecificHeaders=["/static/css/stylesStorePage.css"])
 
         dealership = Dealership.get_by_key_name(str(locationCode))
 
@@ -536,7 +480,7 @@ class StorePage(webapp.RequestHandler):
             'reviewCount': dealership.Total_number_of_reviews,
             'reviewSiteCount': dealership.Number_of_review_sites_with_reviews  ,
             'dealershipName': dealership.Location_Name.lower().title(),
-            'dealershipBrand': dealership.Location_Brand or 'Brand',
+            'dealershipBrand': dealership.Location_Brand.lower().title() or 'Brand',
             'dealershipState': dealership.Location_State or 'State',
             'averageStarRating': dealership.Average_star_ranking_across_sites,
             'address': {
@@ -551,7 +495,7 @@ class StorePage(webapp.RequestHandler):
                 'value': dealership.Location_Brand,
                 'operator': '='
             }
-        }, orderBy='-Reputation_Score', fetchQty=10, memcache_key='dealerships_topBrand_%s' % dealership.Location_Brand)
+        }, orderBy='-Reputation_Score', fetchQty=10, memcache_key='dealerships_topBrand')
 
 
         top_dealerships_by_state_query = makeQuery(filters={
@@ -559,7 +503,7 @@ class StorePage(webapp.RequestHandler):
                 'value': dealership.Location_State,
                 'operator': '='
             }
-        }, orderBy='-Reputation_Score', fetchQty=10, memcache_key='dealerships_topState_%s' % dealership.Location_State)
+        }, orderBy='-Reputation_Score', fetchQty=10, memcache_key='dealerships_topState')
 
         dealership_rank_by_state = len(makeQuery(filters={
             'Location_State': {
@@ -570,9 +514,9 @@ class StorePage(webapp.RequestHandler):
                 'value': dealership.Reputation_Score,
                 'operator': '>'
             }
-        }, orderBy='-Reputation_Score', fetchQty=10000000, memcache_key='dealerships_rankState_%s_%s' % (dealership.Location_State, dealership.Reputation_Score)))
+        }, orderBy='-Reputation_Score', fetchQty=10000000, memcache_key='dealerships_rankState'))
 
-        if dealership_rank_by_state <= 10 and not any([True for d in top_dealerships_by_state_query if d.key() == dealership.key()]):
+        if dealership_rank_by_state <= 10 and all(d.key() == dealership.key() for d in top_dealerships_by_state_query):
             top_dealerships_by_state_query.insert(dealership_rank_by_state, dealership)
 
         dealership_rank_by_brand = len(makeQuery(filters={
@@ -584,9 +528,9 @@ class StorePage(webapp.RequestHandler):
                 'value': dealership.Reputation_Score,
                 'operator': '>'
             }
-        }, orderBy='-Reputation_Score', fetchQty=10000000, memcache_key='dealerships_rankBrand_%s_%s' % (dealership.Location_Brand, dealership.Reputation_Score)))
+        }, orderBy='-Reputation_Score', fetchQty=10000000, memcache_key='dealerships_rankBrand'))
 
-        if dealership_rank_by_brand <= 10 and not any([True for d in top_dealerships_by_brand_query if d.key() == dealership.key()]):
+        if dealership_rank_by_brand <= 10 and all(d.key() == dealership.key() for d in top_dealerships_by_brand_query):
             top_dealerships_by_brand_query.insert(dealership_rank_by_brand, dealership)
 
 
@@ -664,7 +608,7 @@ class StorePage(webapp.RequestHandler):
             }
 
 
-        self.response.out.write(myTemplate.addScript(script).addBody(html).buildPage())
+        self.response.out.write(self.template.addScript(script).buildPage())
 
 class Delete(webapp.RequestHandler):
 
