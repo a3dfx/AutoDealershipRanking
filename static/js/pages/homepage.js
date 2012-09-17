@@ -14,6 +14,7 @@ $(document).ready(function() {
 			return url.slice(0, -1);
 		},		
 		initialize: function() {
+
 			$('#rankResultsTableHole').append(
 				$table = $('<table>').attr({
 					cellpadding: '0',
