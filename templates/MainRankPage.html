@@ -1,0 +1,123 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="http://quickui.org/release/quickui.catalog.css" ></link>
+		<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js" ></script>
+		<script type="text/javascript" src="http://quickui.org/release/quickui.js" ></script>
+		<script type="text/javascript" src="../static/js/jquery.colorbox.js" ></script>
+		<script type="text/javascript" src="../static/js/enhanceselect.js" ></script>
+		
+		<script type="text/javascript" src="../static/js/score1.js" ></script>
+		<script type="text/javascript" src="../static/js/score2.js" ></script>
+		<script type="text/javascript" src="../static/js/G.js" ></script>
+		<script type="text/javascript" src="../static/js/controls/textField.js" ></script>
+		<script type="text/javascript" src="../static/js/controls/stardisplay.js" ></script>
+		<script type="text/javascript" src="../static/js/controls/reviewrow.js" ></script>
+		<script type="text/javascript" src="../static/js/controls/dealershipResultRow.js" ></script>
+		<script type="text/javascript" src="../static/js/controls/rankresult.js" ></script>
+		<script type="text/javascript" src="../static/js/controls/rankresult2.js" ></script>
+		
+		<script type="text/javascript" src="../static/js/pages/storepage.js" ></script>
+		<script type="text/javascript" src="../static/js/pages/buypage.js" ></script>
+		<script type="text/javascript" src="../static/js/pages/finddealershippage.js" ></script>
+		<script type="text/javascript" src="../static/js/pages/homepage.js" ></script>
+		<script type="text/javascript" src="../static/js/pages/publicrankingpage.js" ></script>
+		<link rel="stylesheet" type="text/css" href="../static/css/styles.css" ></link>
+	</head>
+
+<body id="public">
+
+<div id="wrapper">
+    <div id="container">
+               
+<div id="header">
+    <ul class="nav">
+    <li class="active"><a href="/">Home</a></li>
+
+    <li><a href="/finddealer">Find a Dealer</a></li>
+    <li><a href="/products">Buy</a></li>
+    </ul><!-- nav-->
+	<a href="/"><img src="../static/images/logo.png" alt="" class="logo" /></a>
+</div><!-- header-->
+
+<div id="content" class="round">
+
+
+<div class="subHead">
+<h1>Reputation.com for Auto Dealerships</h1>
+
+	
+</div><!-- subheading-->
+
+<div class="buttons">
+    <a href="/finddealer" class="button"><img src="../static/images/icon_find.png" />Find a Dealer</a>
+    <a href="#score" class="inline button"><img src="../static/images/icon_info.png" />About Scoring</a>
+    
+<div class="overlay">
+    <div id="score"><img src="../static/images/score.png" alt="" /></div>
+ </div><!-- overlay-->
+   
+    </div><!-- buttons-->
+
+    <div class="pad">
+	
+        
+        
+        
+        
+     <div class="tableWrapper">
+     
+     <div class="filters">
+     <div class="brand" id="brandSelect"><label>Brand: </label>
+     <div class="select">
+     <select class="enhance" name="" id="brandSelectElem" >
+	</select></div>
+    </div>
+    
+     <div><label>State:</label> 
+	<div class="select">
+     <select class="enhance" id="stateSelectElem">
+	</select></div>
+    </div>
+     </div>
+     
+     <div class="table" id="rankResultsTableHole">
+
+     
+     </div>
+     
+     </div>
+        
+       
+        
+                
+        
+    
+    </div><!-- pad -->
+</div><!-- content-->
+
+
+
+
+
+<div id="footer">
+<p class="">&copy; 2012 Reputation.com</p>
+</div> <!-- footer-->
+
+    
+     
+  </div><!-- container-->
+</div><!-- wrapper-->
+
+
+<script type="text/javascript">
+	G.page = {{ page }}
+	G.pageData = {{ params }}
+	$(G.onLoad());
+</script>
+
+
+
+
+
+</body>
+</html>

@@ -82,7 +82,7 @@ def makeQuery(filters={}, orderBy=None, fetchQty=0,  memcache_key=None):
 class BasePage(webapp.RequestHandler):
     def init_session(self):
         ''' Sets self.session to a models.Session object '''
-
+        self.additionalScript = ''
         session_id = self.request.cookies.get('session_id')
         if session_id:
             session = Session.get_by_key_name(session_id)
@@ -91,8 +91,11 @@ class BasePage(webapp.RequestHandler):
 
         if not session:
             session_id = ''.join(random.choice('012345689abcdefghijklmnopqrstuvwxyz') for i in range(32))
-            all_dealerships = makeQuery(orderBy='-Reputation_Score', fetchQty=1000000, memcache_key='all_dealerships')
-            session = Session(key_name=session_id, brand_list=self.getPropertiesList(all_dealerships, 'Location_Brand'), state_list=self.getPropertiesList(all_dealerships, 'Location_State'))
+            #all_dealerships = makeQuery(orderBy='-Reputation_Score', fetchQty=1000000, memcache_key='all_dealerships')
+            brand_list = 'Acura|AstonMartin|Audi|BMW|BUICK|Bentley|Buick|Cadillac|Chevrolet|Chryser|Chrysler|Crysler|Dodge|Dodge.Chrysler|FORD|Ferrari|Fiat|Ford|GMC|Gmc|HONDA|Honda|Hyundai|Hyundia|ISUZU|Infiniti|Isuzu|JAGUAR|JEEP|Jaguar|Jeep|KIA|Kia|LANDOVER|LANDROVER|LEXUS|Lamborghini|LandRover|Lexus|LexusElite|Lincoln|MAZDA|MINI|Mazda|Mercedes-Benz|MercedesBenz|Mercedez-Benz|Mitsubish|Mitsubishi|Nissan|Porsche|RAM|Ram|Rolls-Royce|RollsRoyce|SAAB|SUBARU|SUZUKI|Saab|Scion|Smart|Subaru|Suzuki|TOYOTA|Tesla|Toyota|Toyota Scion|VOLKSWAGEN|VolksWagon|Volkswagen|Volkswagon|Volvo'
+            state_list = 'AK|AL|AR|AZ|CA|CO|CT|DE|FL|GA|HI|IA|ID|IL|IN|KS|KY|LA|MA|MD|ME|MI|MN|MO|MS|MT|NC|ND|NE|NH|NJ|NM|NV|NY|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VA|VT|WA|WI|WV|WY'
+            session = Session(key_name=session_id, brand_list=brand_list, state_list=state_list)
+            #session = Session(key_name=session_id, brand_list=self.getPropertiesList(all_dealerships, 'Location_Brand'), state_list=self.getPropertiesList(all_dealerships, 'Location_State'))
             session.put()
             self.response.headers.add_header('Set-Cookie', 'session_id=%s; Path=/' % session_id)
 
@@ -100,7 +103,7 @@ class BasePage(webapp.RequestHandler):
         
     def getPropertiesList(self, all_dealerships_query, property, sort=True):
         if property == 'Location_Brand':
-            property_list = list(set(d.Location_Brand.split(",")[0].lower().title() for d in all_dealerships_query if d.Location_Brand))
+            property_list = list(set(d.Location_Brand.split(",")[0] for d in all_dealerships_query if d.Location_Brand))
         elif property == 'Location_State':
             property_list = list(set(d.Location_State for d in all_dealerships_query if d.Location_State))
         if sort:
@@ -133,11 +136,28 @@ class BasePage(webapp.RequestHandler):
         ]);
         myTemplate.addHeaders(pageSpecificHeaders)
         self.template = myTemplate
+    
+    def renderPage(self):
+        self.response.out.write(self.template.addScript(self.additionalScript).buildPage())
 
-class MainPage(BasePage):
+class Splash(BasePage):
     def get(self):
         self.init_session()
-        self.getTemplate(htmlPage='MainRankPage.html', title="R4D - Home", pageSpecificHeaders=["/static/css/styles.css"])
+        self.getTemplate(htmlPage='Splash.html', title="R4D - Home", pageSpecificHeaders=["/static/css/styles.css", "/static/js/supersized.js", "/static/css/supersized.css"])
+        self.additionalScript = """
+            $(function() {
+                $.supersized({
+                    slides  :      [ {image : 'static/images/bg_splash.jpeg', title : ''} ]
+                });                
+            });
+        """
+
+        self.renderPage()
+
+class MainRankPage(BasePage):
+    def get(self):
+        self.init_session()
+        self.getTemplate(htmlPage='MainRankPage.html', title="R4D - Ranking", pageSpecificHeaders=["/static/css/styles.css"])
 
         brandFilter = self.request.get('brand')
         stateFilter = self.request.get('state')
@@ -149,7 +169,7 @@ class MainPage(BasePage):
 
         dealerships_query = makeQuery(filters={
             'Location_Brand': {
-                'value': brandFilter.upper(),
+                'value': brandFilter,
                 'operator': '='
             },
             'Location_State': {
@@ -157,7 +177,7 @@ class MainPage(BasePage):
                 'operator': '='
             },
         }, orderBy='-Reputation_Score', fetchQty=20, memcache_key='dealerships')
-
+        
         data['rankResults'] = []
         for rank, d in enumerate(dealerships_query):
             data['rankResults'].append({
@@ -169,8 +189,8 @@ class MainPage(BasePage):
                 'score': d.Reputation_Score
             })
 
-        script = """
-                $(document).ready(function() {
+        self.additionalScript = """
+                $(function() {
                     $(".inline").colorbox({inline:true, width:"880", height:"700"});
                     $("#root").append(
                         G.controls.Home.create()
@@ -187,7 +207,7 @@ class MainPage(BasePage):
                    stateFilter or 'All States'
                 )
 
-        self.response.out.write(self.template.addScript(script).buildPage())
+        self.renderPage()
 
 class PublicComparison(BasePage):
     def get(self, locationCode):
@@ -215,7 +235,7 @@ class PublicComparison(BasePage):
 
         dealerships_query = makeQuery(filters={
             'Location_Brand': {
-                'value': brandFilter.upper(),
+                'value': brandFilter,
                 'operator': '='
             },
             'Location_State': {
@@ -226,7 +246,7 @@ class PublicComparison(BasePage):
 
         dealership_rank = len(makeQuery(filters={
             'Location_Brand': {
-                'value': brandFilter.upper(),
+                'value': brandFilter,
                 'operator': '='
             },
             'Location_State': {
@@ -265,8 +285,8 @@ class PublicComparison(BasePage):
             })
 
 
-        script = """
-                $(document).ready(function() {
+        self.additionalScript = """
+                $(function() {
                     $(".inline").colorbox({inline:true, width:"880", height:"700"});
                     $("#root").append(
                         G.controls.PublicRankingPage.create()
@@ -283,12 +303,12 @@ class PublicComparison(BasePage):
                    stateFilter or 'All States'
                 )
 
-        self.response.out.write(self.template.addScript(script).buildPage())
+        self.renderPage()
 
 class FindDealer(BasePage):
     def get(self):
         self.init_session()
-        self.getTemplate(htmlPage='FindDealerPage.html', title="R4D - Find Dealer", pageSpecificHeaders=["/static/css/stylesDealershipFind.css"])
+        self.getTemplate(htmlPage='FindDealerPage.html', title="R4D - Find Dealer", pageSpecificHeaders=["/static/css/styles.css"])
 
         stateFilter = self.request.get('state')
         zipFilter = self.request.get('zip')
@@ -326,8 +346,8 @@ class FindDealer(BasePage):
 
             self.response.out.write(simplejson.dumps(data))
         else:
-            script = """
-                    $(document).ready(function() {
+            self.additionalScript = """
+                    $(function() {
                         $("#root").append(
                             G.controls.FindDealershipPage.create()
                                 .pageData(%s)
@@ -336,14 +356,14 @@ class FindDealer(BasePage):
                 """ % simplejson.dumps(data)
 
 
-            self.response.out.write(self.template.addScript(script).buildPage())
+            self.renderPage()
 
 class Buy(BasePage):
     def get(self):
         self.init_session()
         self.getTemplate(htmlPage='buy.html', title="R4D - Products", pageSpecificHeaders=["/static/css/stylesBuyPage.css"])
 
-        script = """
+        self.additionalScript = """
                  var page;
                 var statusCodes = {
                     1 : "Success",
@@ -426,7 +446,7 @@ class Buy(BasePage):
                     889 : 'We are experiencing technical difficulties. Please try again later or call 877-720-6488'
                 }
 
-                $(document).ready(function() {
+                $(function() {
 
                     $("#root").append(
                        page = G.controls.BuyPage.create()
@@ -434,7 +454,7 @@ class Buy(BasePage):
                 });
             """
 
-        self.response.out.write(self.template.addScript(script).buildPage())
+        self.renderPage()
 
 class CreateAccount(webapp.RequestHandler):
     def get(self):
@@ -476,18 +496,21 @@ class StorePage(BasePage):
             'reviews': [
                 {
                  'review': dealership.One_Review or 'Not Found',
+                 'reviewDate': dealership.One_Review_Date or '',
                  'reviewerName': dealership.One_Review_Name or '',
                  'reviewerLocation': dealership.One_Review_Location or '',
                  'rating': dealership.One_Review_Ranking or 0
                 },
                 {
                  'review': dealership.Two_Review or 'Not Found',
+                 'reviewDate': dealership.Two_Review_Date or '',
                  'reviewerName': dealership.Two_Review_Name or '',
                  'reviewerLocation': dealership.Two_Review_Location or '',
                  'rating': dealership.Two_Review_Ranking or 0
                 },
                 {
                  'review': dealership.Three_Review or 'Not Found',
+                 'reviewDate': dealership.Three_Review_Date or '',
                  'reviewerName': dealership.Three_Review_Name or '',
                  'reviewerLocation': dealership.Three_Review_Location or '',
                  'rating': dealership.Three_Review_Ranking or 0
@@ -588,8 +611,8 @@ class StorePage(BasePage):
             })
 
 
-        script = """
-                $(document).ready(function() {
+        self.additionalScript = """
+                $(function() {
 
                     $(".inline").colorbox({inline:true, width:"880", height:"700"});
 
@@ -624,30 +647,32 @@ class StorePage(BasePage):
             }
 
 
-        self.response.out.write(self.template.addScript(script).buildPage())
+        self.renderPage()
 
 class Delete(webapp.RequestHandler):
 
     def get(self):
-
-        #query = db.Query(Dealership).fetch(1000000)
-        #toDelete = []
-        #for d in query:
-        #    toDelete.append(d)
-        #db.delete(toDelete)
+        
+        '''
+        query = db.Query(Dealership).fetch(1000000)
+        toDelete = []
+        for d in query:
+            toDelete.append(d)
+        db.delete(toDelete)
+        '''
         print 'hi'
 
 class InsertDataBig(webapp.RequestHandler):
 
     def get(self):
-
+        
         print 'hey'
-
 
 application = webapp.WSGIApplication(
                                      [
-                                         ('/', MainPage),
+                                         ('/rank', MainRankPage),
                                          ('/delete', Delete),
+                                         ('/', Splash),
                                          ('/insertbig', InsertDataBig),
                                          ('/store/([^/]+)?', StorePage),
                                          ('/products', Buy),

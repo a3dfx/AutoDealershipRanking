@@ -58,6 +58,7 @@ $(document).ready(function() {
         review: Control.property(),
         reviewerName: Control.chain('$name', 'content'),
         reviewerLocation: Control.chain('$location', 'content'),
+        reviewDate: Control.property(),
         rating: Control.property(),
         initialize: function() {
             var self = this;
@@ -71,6 +72,7 @@ $(document).ready(function() {
                         .threeQuartersStarPath('/static/images/star_threequarters.png')
                         .fullStarPath('/static/images/star_full.png')
                         .emptyStarPath('/static/images/star_empty.png')
+                        .date(self.reviewDate())
                 )
             });
         }

@@ -2,10 +2,12 @@
 
 *{padding: 0; margin: 0; font-size: 13px; line-height: 17px; border-collapse:collapse; border:none; outline: none; list-style-type: none; font-weight:normal;font-family: Museo500, helvetica, arial;  }
 body{background:#2e7bb1 url(../images/bg.png) top left repeat-x; }
+body, html{height: 100%;}
 #wrapper{width: 960px; margin: 0 auto;  }
 #container{}
 #content{background: #fff; border: 3px solid #a2ccea;}
  .pad{padding: 20px;}
+
 
 
 hr{border-top: 1px solid #ddd; border-bottom: 1px solid #fff; background: none;}
@@ -69,10 +71,13 @@ line-height: 29px; text-indent: 6px;
 #public .buttons{margin: 0 0 12px 332px;}
 #comparison .buttons{margin: 0 0 12px 232px;}
 .button{background: url(../images/bg_button.jpg) top left repeat-x; display: block; height: 31px; line-height:31px; padding: 0 16px ; font-size: 13px; color: #fff; text-align:center; float: left;-webkit-border-radius: 4px;-moz-border-radius: 4px;border-radius: 4px; display: inline;}
-.button:hover{background-position: bottom left; color: #fff;}
+.large{background: url(../images/bg_button_large.jpeg) top left repeat-x; display: block; height: 43px; line-height:43px; padding: 0 16px ; font-size: 13px; color: #fff; text-align:center; float: left;-webkit-border-radius: 4px;-moz-border-radius: 4px;border-radius: 4px; display: inline;}
+.button:hover, a.delete:hover{background-position: bottom left; color: #fff;}
 .button img{float: left; margin-left: -6px;}
 .buttons .button{margin: 0 3px;}
-a.home{float: left; display:block; width: 70px; position: absolute; margin: -12px 0 0 12px;}
+.green{background: url(../images/bg_button_green.jpg) top left repeat-x; height: 35px; line-height: 35px; font-size: 15px }
+/*a.home{float: left; display:block; width: 70px; position: absolute; margin: -12px 0 0 12px;}*/
+a.delete{width: 19px; height: 19px; float: right; background: url(../images/b_delete.png) top left no-repeat; text-indent:-9999px;}
 
 
 /*****   text *******/
@@ -146,47 +151,6 @@ tr.highlight a{color: #cae0ef}
 .overlay{display: none;}
 #score{}
 
-/*------FONTS/TEXT ------*/
-@font-face {
-    font-family: "Museo100";
-    src: url(" ../../fonts/museo_sans/fontsquirrel/museosans_100-museosans.eot");
-    src: local("â€šÃ²âˆ«"), url(" ../../fonts/museo_sans/fontsquirrel/museosans_100-museosans.woff") format("woff"), url(" ../../fonts/museo_sans/fontsquirrel/museosans_100-museosans.ttf") format("truetype"), url(" ../../fonts/museo_sans/fontsquirrel/museosans_100-museosans.svg#MuseoSans100") format("svg");
-    font-weight: normal;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: "Museo300";
-    src: url(" ../../fonts/museo_sans/fontsquirrel/museosans_300-museosans.eot");
-    src: local("â€šÃ²âˆ«"), url(" ../../fonts/museo_sans/fontsquirrel/museosans_300-museosans.woff") format("woff"), url(" ../../fonts/museo_sans/fontsquirrel/museosans_300-museosans.ttf") format("truetype"), url(" ../../fonts/museo_sans/fontsquirrel/museosans_300-museosans.svg#MuseoSans300") format("svg");
-    font-weight: normal;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: "Museo500";
-    src: url(" ../../fonts/museo_sans/fontsquirrel/museosans_500-museosans.eot");
-    src: local("â€šÃ²âˆ«"), url(" ../../fonts/museo_sans/fontsquirrel/museosans_500-museosans.woff") format("woff"), url(" ../../fonts/museo_sans/fontsquirrel/museosans_500-museosans.ttf") format("truetype"), url(" ../../fonts/museo_sans/fontsquirrel/museosans_500-museosans.svg#MuseoSans500") format("svg");
-    font-weight: normal;
-    font-style: normal;
-}
-
-
-@font-face {
-    font-family: "Museo700";
-    src: url(" ../../fonts/museo_sans/fontsquirrel/museosans_700-museosans.eot");
-    src: local("â€šÃ²âˆ«"), url(" ../../fonts/museo_sans/fontsquirrel/museosans_700-museosans.woff") format("woff"), url(" ../../fonts/museo_sans/fontsquirrel/museosans_700-museosans.ttf") format("truetype"), url(" ../../fonts/museo_sans/fontsquirrel/museosans_700-museosans.svg#MuseoSans700") format("svg");
-    font-weight: normal;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: "Museo900";
-    src: url(" ../../fonts/museo_sans/fontsquirrel/museosans_900-museosans.eot");
-    src: local("â€šÃ²âˆ«"), url(" ../../fonts/museo_sans/fontsquirrel/museosans_900-museosans.woff") format("woff"), url(" ../../fonts/museo_sans/fontsquirrel/museosans_900-museosans.ttf") format("truetype"), url(" ../../fonts/museo_sans/fontsquirrel/museosans_900-museosans.svg#MuseoSans900") format("svg");
-    font-weight: normal;
-    font-style: normal;
-}
 
 /*****  dealer details  *******/
 .columns{float: left; width: 960px; clear: both;}
@@ -274,3 +238,57 @@ hr{border-top: 1px solid #ddd; border-bottom: 1px solid #fff; background: none;}
     #cboxLoadingGraphic{background:url(../images/loading.gif) no-repeat center center;}
     #cboxClose{position:absolute; top:25px; right:15px; display:block; background:url(../images/controls.png) no-repeat top center; width:38px; height:19px; text-indent:-9999px;}
     #cboxClose:hover{background-position:bottom center;}
+
+    
+    /*****  splash page *******/
+#splash{overflow: hidden;}
+#splash .content{width: 600px; margin: 0 auto; height: 330px;background: rgba(255, 255, 255, 0.94); text-align:center; border: 3px solid #3879a7;
+}
+#splash .content .pad{padding: 50px;}
+#splash .content .logo{display: block; margin: 0 auto 30px auto;}
+#splash p{margin: 0 0 30px 0; font-size: 15px; color: #222; line-height: 21px;}
+#splash .button{display: block ;margin: 0 auto; float: none; width: 150px; font-size: 17px; height: 42px; line-height:42px;}
+
+
+/*****  buy *******/
+.packages {clear: both;float: left; width: 100%;background: #fff;}
+.packages .block{float: left; width: 33%; text-align: left;background-position: top right; background-repeat: repeat-x; background-color: #fff;-moz-box-shadow: inset 1px 1px 2px #ccc; -webkit-box-shadow: inset 1px 1px 2px #ccc; box-shadow: inset -1px 1px 2px #ccc; height: 320px;}
+.packages .base{background-image: url(../images/bg_base.png);width: 34%;}
+.packages .gold{background-image: url(../images/bg_gold.png);}
+.packages .platinum{background-image: url(../images/bg_platinum.png);}
+.packages h1{text-align: left;margin: 0 0 8px 0; line-height: 24px;color: #000;}
+.packages h1.type{margin: 0 0 8px 0; font-size: 16px; font-family: Museo900}
+.packages .base h1.type{color: #286a99;}
+.packages .gold h1.type{color: #ab945c;}
+.packages .platinum h1.type{color: #888;}
+.packages h1.price{color: #888; font-size: 20px; margin: 0 0 16px 0;}
+.packages h2{color: #000; font-size: 15px; margin: 0 0 10px 0; font-family: Museo700;}
+.packages li{background: url(../images/icon_check.png) top left no-repeat; padding-left: 22px; margin: 0 0 7px 0;}
+
+.section {border-top: 1px solid #eee; text-align: left; width: 100%; float: left; display: block; clear: both;}
+.section h1{font-size: 18px; margin: 0 0 14px 0; color: #000; text-align:left;}
+
+.locations *{text-align: left;}
+.locations table, .locations td, .locations th {border-color: #fff;}
+.locations label{display: block;}
+.locations .field{width: 100%;}
+.locations th{background: #edf6fd;}
+.locations th, .locations td{padding: 9px;}
+.locations td{background: #f1f1f1;}
+.locations div.price{float: right; text-align:right; padding-right: 12px;}
+.locations tr.total td{text-align: right; background: #ddd; font-size: 18px;}
+
+.account .field{width: 200px; margin: 0 6px 0 0;}
+.account .row{width: 100%; clear: both; padding: 5px 0; display:block; float: left;}
+.account .enhancedtrigger{width: 70px; float: left; margin: 0 6px 0 0;}
+.account .narrow .enhancedtrigger{width: 70px;}
+.account .medium .enhancedtrigger{width: 150px;}
+.account .med{width: 130px; float: left; margin: 0 6px 0 0;}
+.account .row .field{float: left;}
+.cta{margin-top: 10px; background: #edf6fd;}
+ .cta .button{ display: block; float: none; width: 170px;}
+ 
+ .confirmation{text-align: center; padding: 40px;}
+ .confirmation h1{margin: 0 0 30px 0;}
+ .confirmation p{font-size: 16px; padding: 0 120px; line-height:22px; margin: 0 0 10px 0;}
+ .confirmation .home{float: none; display: block; margin: 40px auto; width: 80px;}

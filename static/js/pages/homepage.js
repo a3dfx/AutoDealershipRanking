@@ -68,7 +68,7 @@ $(document).ready(function() {
 								brand: self.filterChosen().brand,
 								state: self.filterChosen().state
 							})
-							document.location = '/' + url;
+							document.location = '/rank' + url;
 						});
 					});	
 				}

@@ -30,6 +30,7 @@ $(document).ready(function() {
 					$personReviewsTable.append(
 						G.controls.ReviewRow.create()
 							.review(pageData.reviews[i].review)
+							.reviewDate(pageData.reviews[i].reviewDate)
 							.reviewerName(pageData.reviews[i].reviewerName)
 							.reviewerLocation(pageData.reviews[i].reviewerLocation)
 							.rating(pageData.reviews[i].rating)					
