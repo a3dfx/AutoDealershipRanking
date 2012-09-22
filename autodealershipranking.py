@@ -92,7 +92,7 @@ class BasePage(webapp.RequestHandler):
         if not session:
             session_id = ''.join(random.choice('012345689abcdefghijklmnopqrstuvwxyz') for i in range(32))
             #all_dealerships = makeQuery(orderBy='-Reputation_Score', fetchQty=1000000, memcache_key='all_dealerships')
-            brand_list = 'Acura|AstonMartin|Audi|BMW|BUICK|Bentley|Buick|Cadillac|Chevrolet|Chryser|Chrysler|Crysler|Dodge|Dodge.Chrysler|FORD|Ferrari|Fiat|Ford|GMC|Gmc|HONDA|Honda|Hyundai|Hyundia|ISUZU|Infiniti|Isuzu|JAGUAR|JEEP|Jaguar|Jeep|KIA|Kia|LANDOVER|LANDROVER|LEXUS|Lamborghini|LandRover|Lexus|LexusElite|Lincoln|MAZDA|MINI|Mazda|Mercedes-Benz|MercedesBenz|Mercedez-Benz|Mitsubish|Mitsubishi|Nissan|Porsche|RAM|Ram|Rolls-Royce|RollsRoyce|SAAB|SUBARU|SUZUKI|Saab|Scion|Smart|Subaru|Suzuki|TOYOTA|Tesla|Toyota|Toyota Scion|VOLKSWAGEN|VolksWagon|Volkswagen|Volkswagon|Volvo'
+            brand_list = 'Aston Martin|Audi|BMW|Bentley|Buick|Cadillac|Chevrolet|Chrysler|Dodge|Ferrari|Fiat|Ford|GMC|Honda|Hyundai|Isuzu|Infiniti|Isuzu|Jaguar|Jeep|Kia|Lamborghini|Land Rover|Lexus|Lincoln|Mazda|Mercedes-Benz|Mini|Mitsubishi|Nissan|Porsche|Ram|Rolls-Royce|SAAB|Subaru|Scion|Smart|Subaru|Suzuki|Tesla|Toyota|Volkswagen|Volvo'
             state_list = 'AK|AL|AR|AZ|CA|CO|CT|DE|FL|GA|HI|IA|ID|IL|IN|KS|KY|LA|MA|MD|ME|MI|MN|MO|MS|MT|NC|ND|NE|NH|NJ|NM|NV|NY|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VA|VT|WA|WI|WV|WY'
             session = Session(key_name=session_id, brand_list=brand_list, state_list=state_list)
             #session = Session(key_name=session_id, brand_list=self.getPropertiesList(all_dealerships, 'Location_Brand'), state_list=self.getPropertiesList(all_dealerships, 'Location_State'))
@@ -183,7 +183,7 @@ class MainRankPage(BasePage):
             data['rankResults'].append({
                 'rank': rank + 1,
                 'hrefPath': '/store/%s' % d.key().name(),
-                'dealership': d.Location_Name.lower().title(),
+                'dealership': d.Location_Name.title(),
                 'state': d.Location_State,
                 'numberReviews': d.Total_number_of_reviews,
                 'score': d.Reputation_Score
@@ -220,7 +220,7 @@ class PublicComparison(BasePage):
         stateFilter = self.request.get('state')
 
         data = {
-            'dealershipName': dealership.Location_Name.lower().title(),
+            'dealershipName': dealership.Location_Name.title(),
             'dealershipLocationCode': dealership.key().name(),
             'address': {
                 'street': dealership.Location_Address,
@@ -267,7 +267,7 @@ class PublicComparison(BasePage):
                 'hrefPath': '/store/%s' % d.key().name(),
                 'highlight': d.key() == dealership.key(),
                 'rank': rank + 1,
-                'dealership': d.Location_Name.lower().title(),
+                'dealership': d.Location_Name.title(),
                 'state': d.Location_State,
                 'numberReviews': d.Total_number_of_reviews,
                 'score': d.Reputation_Score
@@ -278,7 +278,7 @@ class PublicComparison(BasePage):
                 'highlight': True,
                 'rank': dealership_rank,
                 'hrefPath': '/store/%s' % dealership.key().name(),
-                'dealership': dealership.Location_Name.lower().title(),
+                'dealership': dealership.Location_Name.title(),
                 'state': d.Location_State,
                 'numberReviews': dealership.Total_number_of_reviews,
                 'score': dealership.Reputation_Score
@@ -328,7 +328,7 @@ class FindDealer(BasePage):
                     'operator': '='
                 },
                 'Location_City': {
-                    'value': cityFilter,
+                    'value': cityFilter.title(),
                     'operator': '='
                 },
                 'Location_State': {
@@ -340,7 +340,7 @@ class FindDealer(BasePage):
             for d in dealerships_query:
                 data['dealerships_list'].append({
                     'hrefPath': '/publicranking/%s' % d.key().name(),
-                    'name': d.Location_Name.lower().title(),
+                    'name': d.Location_Name.title(),
                     'address': '%s <br/> %s, %s %s' % (d.Location_Address, d.Location_City, d.Location_State, d.Location_Zip)
                 })
 
@@ -518,8 +518,8 @@ class StorePage(BasePage):
             ],
             'reviewCount': dealership.Total_number_of_reviews,
             'reviewSiteCount': dealership.Number_of_review_sites_with_reviews  ,
-            'dealershipName': dealership.Location_Name.lower().title(),
-            'dealershipBrand': dealership.Location_Brand.lower().title() if dealership.Location_Brand else 'Brand',
+            'dealershipName': dealership.Location_Name.title(),
+            'dealershipBrand': dealership.Location_Brand.title() if dealership.Location_Brand else 'Brand',
             'dealershipState': dealership.Location_State or 'State',
             'averageStarRating': dealership.Average_star_ranking_across_sites,
             'address': {
@@ -578,7 +578,7 @@ class StorePage(BasePage):
                 'highlight': d.key() == dealership.key(),
                 'locationCode': d.key().name(),
                 'rank': rank + 1,
-                'dealership': d.Location_Name.lower().title(),
+                'dealership': d.Location_Name.title(),
                 'score': d.Reputation_Score
             })
 
@@ -587,7 +587,7 @@ class StorePage(BasePage):
                 'highlight': d.key() == dealership.key(),
                 'locationCode': d.key().name(),
                 'rank': rank + 1,
-                'dealership': d.Location_Name.lower().title(),
+                'dealership': d.Location_Name.title(),
                 'score': d.Reputation_Score
             })
 
@@ -596,7 +596,7 @@ class StorePage(BasePage):
                 'highlight': True,
                 'locationCode': dealership.key().name(),
                 'rank': dealership_rank_by_state,
-                'dealership': dealership.Location_Name.lower().title(),
+                'dealership': dealership.Location_Name.title(),
                 'score': dealership.Reputation_Score
             })
 
@@ -606,7 +606,7 @@ class StorePage(BasePage):
                 'highlight': True,
                 'locationCode': dealership.key().name(),
                 'rank': dealership_rank_by_brand,
-                'dealership': dealership.Location_Name.lower().title(),
+                'dealership': dealership.Location_Name.title(),
                 'score': dealership.Reputation_Score
             })
 
@@ -665,8 +665,18 @@ class Delete(webapp.RequestHandler):
 class InsertDataBig(webapp.RequestHandler):
 
     def get(self):
+
         
-        print 'hey'
+        query = db.Query(Dealership).fetch(4500)
+        entities = []
+        for d in query:
+            if d.Location_City:
+                if d.Location_City != d.Location_City.title():
+                    d.Location_City = d.Location_City.title()
+                    entities.append(d)
+        db.put(entities)
+                    
+            
 
 application = webapp.WSGIApplication(
                                      [
