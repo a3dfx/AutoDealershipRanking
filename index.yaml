@@ -25,6 +25,12 @@ indexes:
 
 - kind: Dealership
   properties:
+  - name: Location_Brand_List
+  - name: Reputation_Score
+    direction: desc
+
+- kind: Dealership
+  properties:
   - name: Location_City
   - name: Location_State
   - name: Location_Zip

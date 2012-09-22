@@ -18,6 +18,10 @@ class Dealership(db.Model):
     Location_Code = db.StringProperty()
     Location_Name = db.StringProperty()
     Location_Brand = db.StringProperty()
+    Location_Brand_List = db.StringListProperty()
+    Location_Brand2 = db.StringProperty()
+    Location_Brand3 = db.StringProperty()
+    Location_Brand4 = db.StringProperty()
     Location_Address = db.StringProperty()
     Location_City = db.StringProperty()
     Location_State = db.StringProperty()
@@ -168,7 +172,7 @@ class MainRankPage(BasePage):
         data['states_list'] = self.session.state_list.split('|')
 
         dealerships_query = makeQuery(filters={
-            'Location_Brand': {
+            'Location_Brand_List': {
                 'value': brandFilter,
                 'operator': '='
             },
@@ -234,7 +238,7 @@ class PublicComparison(BasePage):
         data['states_list'] = self.session.state_list.split('|')
 
         dealerships_query = makeQuery(filters={
-            'Location_Brand': {
+            'Location_Brand_List': {
                 'value': brandFilter,
                 'operator': '='
             },
@@ -245,7 +249,7 @@ class PublicComparison(BasePage):
         }, orderBy='-Reputation_Score', fetchQty=20, memcache_key='dealerships_public')
 
         dealership_rank = len(makeQuery(filters={
-            'Location_Brand': {
+            'Location_Brand_List': {
                 'value': brandFilter,
                 'operator': '='
             },
@@ -259,7 +263,7 @@ class PublicComparison(BasePage):
             }
         }, orderBy='-Reputation_Score', fetchQty=10000000, memcache_key='dealerships_public'))
         
-        if dealership_rank <= 20 and all(d.key() == dealership.key() for d in dealerships_query):
+        if dealership_rank <= 20 and all(d.key() != dealership.key() for d in dealerships_query):
             dealerships_query.insert(dealership_rank, dealership)
 
         for rank, d in enumerate(dealerships_query):
@@ -519,7 +523,7 @@ class StorePage(BasePage):
             'reviewCount': dealership.Total_number_of_reviews,
             'reviewSiteCount': dealership.Number_of_review_sites_with_reviews  ,
             'dealershipName': dealership.Location_Name.title(),
-            'dealershipBrand': dealership.Location_Brand.title() if dealership.Location_Brand else 'Brand',
+            'dealershipBrand': dealership.Location_Brand.split(',')[0].title() if dealership.Location_Brand else 'Brand',
             'dealershipState': dealership.Location_State or 'State',
             'averageStarRating': dealership.Average_star_ranking_across_sites,
             'address': {
@@ -530,8 +534,8 @@ class StorePage(BasePage):
 
 
         top_dealerships_by_brand_query = makeQuery(filters={
-            'Location_Brand': {
-                'value': dealership.Location_Brand,
+            'Location_Brand_List': {
+                'value': dealership.Location_Brand.split(',')[0],
                 'operator': '='
             }
         }, orderBy='-Reputation_Score', fetchQty=10, memcache_key='dealerships_topBrand')
@@ -555,12 +559,12 @@ class StorePage(BasePage):
             }
         }, orderBy='-Reputation_Score', fetchQty=10000000, memcache_key='dealerships_rankState'))
 
-        if dealership_rank_by_state <= 10 and all(d.key() == dealership.key() for d in top_dealerships_by_state_query):
+        if dealership_rank_by_state <= 10 and all(d.key() != dealership.key() for d in top_dealerships_by_state_query):
             top_dealerships_by_state_query.insert(dealership_rank_by_state, dealership)
 
         dealership_rank_by_brand = len(makeQuery(filters={
-            'Location_Brand': {
-                'value': dealership.Location_Brand,
+            'Location_Brand_List': {
+                'value': dealership.Location_Brand.split(',')[0],
                 'operator': '='
             },
             'Reputation_Score': {
@@ -569,7 +573,7 @@ class StorePage(BasePage):
             }
         }, orderBy='-Reputation_Score', fetchQty=10000000, memcache_key='dealerships_rankBrand'))
 
-        if dealership_rank_by_brand <= 10 and all(d.key() == dealership.key() for d in top_dealerships_by_brand_query):
+        if dealership_rank_by_brand <= 10 and all(d.key() != dealership.key() for d in top_dealerships_by_brand_query):
             top_dealerships_by_brand_query.insert(dealership_rank_by_brand, dealership)
 
 
@@ -664,17 +668,26 @@ class Delete(webapp.RequestHandler):
 
 class InsertDataBig(webapp.RequestHandler):
 
-    def get(self):
-
-        
-        query = db.Query(Dealership).fetch(4500)
+    def get(self, offsetby):
+        '''
+        if not offsetby:
+            offsetby = 0
+        query = db.Query(Dealership).order('-Reputation_Score').fetch(500, offset=int(offsetby))
         entities = []
-        for d in query:
-            if d.Location_City:
-                if d.Location_City != d.Location_City.title():
-                    d.Location_City = d.Location_City.title()
+        if len(query):
+            for d in query:
+                if d.Location_Brand:
+                    brands = d.Location_Brand.split(",")
+                    d.Location_Brand_List = brands
                     entities.append(d)
-        db.put(entities)
+            db.put(entities)    
+            self.redirect("/insertbig/" + str(int(offsetby) + 500))    
+        else:
+            return
+            
+        '''
+        print 'hey'
+                
                     
             
 
@@ -683,7 +696,7 @@ application = webapp.WSGIApplication(
                                          ('/rank', MainRankPage),
                                          ('/delete', Delete),
                                          ('/', Splash),
-                                         ('/insertbig', InsertDataBig),
+                                         ('/insertbig/([^/]+)?', InsertDataBig),
                                          ('/store/([^/]+)?', StorePage),
                                          ('/products', Buy),
                                          ('/publicranking/([^/]+)?', PublicComparison),
