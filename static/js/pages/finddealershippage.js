@@ -56,7 +56,28 @@ $(document).ready(function() {
 		},
 		initialize: function() {
 			var self = this;
-			this.inDocument(function() {				
+			this.inDocument(function() {	
+				
+				var search = function() {
+					$("#loadingGif").show();
+					$stateSelected = $('.enhancedtrigger.enhancedtrigger').html()
+	    			if (($cityTextField.getValidInput() && $stateSelected != 'Select State') || $zipTextField.getValidInput()) {
+	    				$stateSelected = $stateSelected == 'Select State' ? '' : $stateSelected
+	    				var params = {
+    						city: $cityTextField.getValidInput(),
+    						zip: $zipTextField.getValidInput(),
+    						state: $stateSelected
+	    				}
+	    				$.get(self.createGetUrl(params), function(data) {
+	    					self.renderResults(data);
+	    					$("#loadingGif").hide();
+	    				})
+	    			} else {
+	    				$("#loadingGif").hide();
+	    				alert('Please submit a valid address')
+	    			}					
+				}
+
     			$("#zipTextFieldHole").append(
 	    			$zipTextField = G.controls.TextField.create()
 						.id('zipTextField')
@@ -67,7 +88,11 @@ $(document).ready(function() {
 							name: 'ZIP',
 							class: 'field'
 						})
-				);
+				).keypress(function (e) {
+					  if (e.which == 13) {
+						  search();
+					  }
+				});
 				$("#cityTextFieldHole").append(
 		    		$cityTextField = G.controls.TextField.create()
 						.id('cityTextField')
@@ -78,8 +103,12 @@ $(document).ready(function() {
 							name: 'City',
 							class: 'field'
 						})				
-				);
-				
+				).keypress(function (e) {
+					  if (e.which == 13) {
+						  search();
+					  }
+				});
+					  
 				for (var i=0; i<self.pageData().states_list.length; i++) {
 					$('#stateSelectElem').append(
 						$('<option>').text(
@@ -91,20 +120,7 @@ $(document).ready(function() {
 				$('#searchButton').css({
 					'cursor': 'pointer'
 				}).click(function() {
-					$stateSelected = $('.enhancedtrigger.enhancedtrigger').html()
-	    			if (($cityTextField.getValidInput() && $stateSelected != 'Select State') || $zipTextField.getValidInput()) {
-	    				$stateSelected = $stateSelected == 'Select State' ? '' : $stateSelected
-	    				var params = {
-    						city: $cityTextField.getValidInput(),
-    						zip: $zipTextField.getValidInput(),
-    						state: $stateSelected
-	    				}
-	    				$.get(self.createGetUrl(params), function(data) {
-	    					self.renderResults(data);
-	    				})
-	    			} else {
-	    				alert('Please submit a valid address')
-	    			}
+					search()
 				});
 				
 			});
