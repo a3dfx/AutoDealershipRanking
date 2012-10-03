@@ -14,6 +14,48 @@ $(document).ready(function() {
 			return url.slice(0, -1);
 		},		
 		initialize: function() {
+			/*
+			$.post('https://www.blackmagicsfdcservices.appspot.com/service_call', 
+				{'pwd': 'lior1213wfITr8Ik6Mp3P8wgBtPXF11le', 'uid': 'lior.gotesman@reputation.com.dev', 
+				'form_fields': JSON.stringify({
+
+	            'service_name': 'ContentInsert',
+	
+	            'work_order_id': "d366ab70-d07d-4e9a-a728-db8db2a4b411",
+	
+	            'membership_id': '558493',
+	
+	            'fulfillment_notes': 'there are notes',
+	
+	            'master_profile': 'master profile goeshere',
+	            'writer_id': '12341234',
+	
+	            'expedite': "False",
+	
+	            'contentCreationResults': [
+	
+	                {
+	
+	                    "id": "6c0a4d15-3866-4883-9469-73a10961662a",
+	
+	                    "content": "content is here"
+	
+	                },
+	
+	                {
+	
+	                    "id": "6040c227-7adb-4881-832b-42ddae9f7ac8",
+	
+	                    "content": "This is my content"
+	
+	                }
+	
+	            ]
+
+			})}, function(data) {
+				console.log(data)
+			});
+			*/
 
 			$('#rankResultsTableHole').append(
 				$table = $('<table>').attr({

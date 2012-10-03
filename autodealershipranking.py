@@ -69,6 +69,7 @@ class Order(db.Model):
 class Session(db.Expando):
     brand_list = db.TextProperty()
     state_list = db.TextProperty()
+    user_email = db.StringProperty()
 
 def makeQuery(filters={}, orderBy=None, fetchQty=0,  memcache_key=None):
     memcache_key = memcache_key + "_" + "_".join([str(filters[key]['value']) for key in filters.keys() if filters[key]['value']])
@@ -118,6 +119,7 @@ class BasePage(webapp.RequestHandler):
         myTemplate = HtmlTemplate()
         myTemplate.addBody(open(htmlPage).read()).addTitle(title)
         myTemplate.addHeaders([
+            "https://cert01.securepaypage.litle.com/LitlePayPage/litle-api.js",
             "http://quickui.org/release/quickui.catalog.css",
             "http://code.jquery.com/jquery-1.7.2.min.js",
             "http://quickui.org/release/quickui.js",
@@ -125,13 +127,16 @@ class BasePage(webapp.RequestHandler):
             "/static/js/enhanceselect.js",
             "/static/js/score1.js",
             "/static/js/score2.js",
+            "/static/js/currencyFormat.js",
             "/static/js/G.js",
             "/static/js/controls/textField.js",
+            "/static/js/controls/submitButton.js",
             "/static/js/controls/stardisplay.js",
             "/static/js/controls/reviewrow.js",
             "/static/js/controls/dealershipResultRow.js",
             "/static/js/controls/rankresult.js",
             "/static/js/controls/rankresult2.js",
+            "/static/js/controls/locationentry.js",
             "/static/js/pages/storepage.js",
             "/static/js/pages/buypage.js",
             "/static/js/pages/finddealershippage.js",
@@ -365,7 +370,7 @@ class FindDealer(BasePage):
 class Buy(BasePage):
     def get(self):
         self.init_session()
-        self.getTemplate(htmlPage='buy.html', title="R4D - Products", pageSpecificHeaders=["/static/css/stylesBuyPage.css"])
+        self.getTemplate(htmlPage='buy2.html', title="R4D - Products", pageSpecificHeaders=["/static/css/styles.css"])
 
         self.additionalScript = """
                  var page;
@@ -424,20 +429,6 @@ class Buy(BasePage):
                     "username":null
                 }
 
-                var entityInfos = [{
-                    "is_primary": true,
-                    "plans":null,
-                    "entity_type": "business",
-                    "creation_profile_public": false,
-                    "business_name":null,
-                    "address1":null,
-                    "address2":null,
-                    "address_city":null,
-                    "address_zip":null,
-                    "address_state":null,
-                    "address_country":"USA"
-                }];
-
                 var responseCodes = {
                     1 : 'Timeout contacting server. Please retry.',
                     2 : 'Litle API not loaded. Please reload the page.',
@@ -460,10 +451,25 @@ class Buy(BasePage):
 
         self.renderPage()
 
-class CreateAccount(webapp.RequestHandler):
+class Confirmation(BasePage):
     def get(self):
+        self.init_session()
+        self.additionalScript = """
+                $(function() {
+                    $('#user_email').attr({
+                        href: "mailto:'(user_email)'"
+                    }).append('%(user_email)s')
+                });
+            """  % { 'user_email': self.session.user_email }  
+        self.getTemplate(htmlPage='paymentconfirmation.html', title="R4D - Confirmation", pageSpecificHeaders=["/static/css/styles.css"])
+        self.renderPage()
 
+class CreateAccount(BasePage):
+    def get(self):
+        self.init_session()
         email = self.request.get('email')
+        self.session.user_email = email
+        self.session.save()        
         dealershipName = self.request.get('dealershipName')
         packageSelected = self.request.get('packageSelected')
         personName = self.request.get('personName')
@@ -676,7 +682,7 @@ class InsertDataBig(webapp.RequestHandler):
         entities = []
         if len(query):
             for d in query:
-                if d.Location_Brand:
+                if d.Location_Brand and not d.Location_Brand_List:
                     brands = d.Location_Brand.split(",")
                     d.Location_Brand_List = brands
                     entities.append(d)
@@ -684,11 +690,8 @@ class InsertDataBig(webapp.RequestHandler):
             self.redirect("/insertbig/" + str(int(offsetby) + 500))    
         else:
             return
-            
         '''
-        print 'hey'
-                
-                    
+        print 'hi'
             
 
 application = webapp.WSGIApplication(
@@ -698,6 +701,7 @@ application = webapp.WSGIApplication(
                                          ('/', Splash),
                                          ('/insertbig/([^/]+)?', InsertDataBig),
                                          ('/store/([^/]+)?', StorePage),
+                                         ('/confirmation', Confirmation),
                                          ('/products', Buy),
                                          ('/publicranking/([^/]+)?', PublicComparison),
                                          ('/finddealer', FindDealer),

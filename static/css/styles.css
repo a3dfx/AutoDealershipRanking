@@ -75,7 +75,7 @@ line-height: 29px; text-indent: 6px;
 .button:hover, a.delete:hover{background-position: bottom left; color: #fff;}
 .button img{float: left; margin-left: -6px;}
 .buttons .button{margin: 0 3px;}
-.green{background: url(../images/bg_button_green.jpg) top left repeat-x; height: 35px; line-height: 35px; font-size: 15px }
+.green{background: url(../images/bg_button_green.jpeg) top left repeat-x; height: 35px; line-height: 35px; font-size: 15px }
 /*a.home{float: left; display:block; width: 70px; position: absolute; margin: -12px 0 0 12px;}*/
 a.delete{width: 19px; height: 19px; float: right; background: url(../images/b_delete.png) top left no-repeat; text-indent:-9999px;}
 
@@ -281,8 +281,8 @@ hr{border-top: 1px solid #ddd; border-bottom: 1px solid #fff; background: none;}
 .account .field{width: 200px; margin: 0 6px 0 0;}
 .account .row{width: 100%; clear: both; padding: 5px 0; display:block; float: left;}
 .account .enhancedtrigger{width: 70px; float: left; margin: 0 6px 0 0;}
-.account .narrow .enhancedtrigger{width: 70px;}
-.account .medium .enhancedtrigger{width: 150px;}
+.account .narrow .enhancedtrigger{width: 70px; background: none;}
+.account .medium .enhancedtrigger{width: 150px; background: none;}
 .account .med{width: 130px; float: left; margin: 0 6px 0 0;}
 .account .row .field{float: left;}
 .cta{margin-top: 10px; background: #edf6fd;}

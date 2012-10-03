@@ -4,6 +4,43 @@ $(document).ready(function() {
 		ccNumber: Control.property(),
 		planChosen: Control.property(),
 		userParams: Control.property(),
+		saleTotal: Control.property(),
+		userId: Control.property(),
+		entityAdded: Control.property(),
+		entityInfos: Control.property(),
+		addEntityInfo: function() {
+			var self = this;
+			var data = self.entityAdded();
+            var entityInfo = {
+                "is_primary": data.is_primary,
+                "plans":data.plans,
+                "entity_type": "business",
+                "creation_profile_public": false,
+                "business_name":data.name,
+                "address1":data.address,
+                "address2":null,
+                "address_city":data.city,
+                "address_zip":data.zip,
+                "address_state":data.state,
+                "address_country": 'USA'
+            };
+            self.entityInfos().push(entityInfo);
+		},
+		removeEntityInfo: function(entityName) {
+			var self = this;
+			var newEntityInfos = [];
+            for (var i=0; i<self.entityInfos().length; i++) {
+            	var entity = self.entityInfos()[i];
+            	if (entity.business_name != entityName) {
+            		entity.is_primary = false;
+            		newEntityInfos.push(entity);
+            	}
+            }
+            if (newEntityInfos.length) {
+            	newEntityInfos[0].is_primary = true;
+            }
+            self.entityInfos(newEntityInfos);
+		},		
 		createGetUrl: function(params) {
 			var url = '';
 			var goodParams = {};
@@ -31,22 +68,6 @@ $(document).ready(function() {
 	            "&callback=?"
 		},
         configureAPI: function() {
-            // Get entity data
-            var entity = entityInfos[0];
-            for (var key in entityInfos[0]) {
-                var value = $('#' + key).val();
-                if(value) {
-                    entityInfos[0][key] = value;
-                }             
-            }  
-            
-            planMapping = {
-            	'Base': {"5" : "11143"},
-            	'Gold': {"5" : "11151"},
-            	'Platinum': {"5" : "11152"}
-            }
-
-            entityInfos[0].plans = planMapping[this.planChosen()];
             
             for (var key in accountInfo) {
                 var value = $('#' + key).val();
@@ -58,25 +79,25 @@ $(document).ready(function() {
             $.extend(accountInfo, {
                 litle_type: document.getElementById('response$type').value,
                 username: accountInfo.account_email,
-                password: G.randomPassword()
+                password: G.randomPassword(),
+                exp_month: $('#monthYear').val(),
+                exp_year: $('#expYear').val()
             });
-            
-            accountInfo.exp_month = $('#expMonthSelect .enhancedtrigger.enhancedtrigger').html();
-            accountInfo.exp_year = $('#expYearSelect .enhancedtrigger.enhancedtrigger').html();
+
         },
 		sendRequestToOptimus: function() {
 			var self = this;
 			this.configureAPI();
-            var apiSecret = "sdklw9ASas9Ajd9jd/cjk9As";
+            var apiSecret = "rdi9GRCV/a9W5y1eAwSM0Asd";
             var url;
             var urlData;
-            var dataEncoded;
+            var dataEncoded;            
             
-            url = 'http://appservices.reputationdefender.com/AccountManagement/createAccount' +
+            url = 'http://qaservices.reputationdefender.com/AccountManagement/createAccount' +
             	"?api_key=ReputationSF" +
-            	"&api_secret=sdklw9ASas9Ajd9jd/cjk9As" +
+            	"&api_secret=rdi9GRCV/a9W5y1eAwSM0Asd" +
             	'&accountInfo=' + encodeURIComponent(JSON.stringify(accountInfo)) +
-            	'&entityInfos=' + encodeURIComponent(JSON.stringify(entityInfos)) +
+            	'&entityInfos=' + encodeURIComponent(JSON.stringify(self.entityInfos())) +
             	'&callback=?';
             /*
             url = 'http://appservices.reputationdefender.com/AccountManagement/createAccount';
@@ -88,12 +109,13 @@ $(document).ready(function() {
             var oUrl = this.hashUrl(url, data, dataEncoded, apiSecret);
 			*/
             
-            console.log(url, accountInfo, entityInfos)
+            console.log(url, accountInfo, self.entityInfos())
             
             $.getJSON(url, function(response) {
             	console.log(response)
             	if (response.message == "Not allowed") {
             		$('#loadingGif').hide();
+            		$submitButton.enable();
                     alert("Payment did not go through");
                     $("#accountNumberField").val(self.ccNumber());
                 } else if (response.result.status == 1) {
@@ -101,11 +123,12 @@ $(document).ready(function() {
                 	console.log(self.userParams())
         			$.get(self.createGetUrl(self.userParams()), function(data) {
         				$('#loadingGif').hide();
-        				alert("Successful and Saved");
-        				document.location = '/';
+        				$submitButton.enable();
+        				document.location = '/confirmation';
         			});	
                 } else {
                 	$('#loadingGif').hide();
+                	$submitButton.enable();
                 	alert(statusCodes[response.result.status]);
                 	$("#accountNumberField").val(self.ccNumber());
                 }
@@ -127,6 +150,7 @@ $(document).ready(function() {
 	        }
 	        function timeoutOnLitle () { 
 	        	$('#loadingGif').hide();
+	        	$submitButton.enable();
 	            alert(responseCodes[1])
 	            $("#accountNumberField").val(self.ccNumber());
 	        }   
@@ -134,13 +158,14 @@ $(document).ready(function() {
 	            setLitleResponseFields(response);
 	            $("#accountNumberField").val(self.ccNumber());
 	            $('#loadingGif').hide();
+	            $submitButton.enable();
 	            alert(responseCodes[response.response])
 	            return false;
 	        }  			
 			
             setLitleResponseFields({"response":"", "message":""});
             
-            var tokenUrl = "https://reputation.securepaypage.litle.com"
+            var tokenUrl = "https://cert01.securepaypage.litle.com"
             var tokenUser = "REPDEFTKN"
             var tokenPayPageId = "vqDVQEjr87ERQZp9"
             var tokenKey = "700000008870"
@@ -157,7 +182,7 @@ $(document).ready(function() {
              "reportGroup" : document.getElementById("request$reportGroup").value,
              "orderId" : document.getElementById("request$orderId").value,
              "id" : document.getElementById("request$merchantTxnId").value,
-             "url" : "https://reputation.securepaypage.litle.com"
+             "url" : "https://cert01.securepaypage.litle.com"
             }
 
             if (typeof sendToLitle == 'function') {
@@ -174,15 +199,104 @@ $(document).ready(function() {
 	    		}
 	    	}
 	    	return allInpsValid;
-	    },		
+	    },	
+	    onSubmit: function() {
+	    	var self = this;
+			$('#loadingGif').show();
+			$expMonth = $('#expMonthSelect').html();
+			$expYear = $('#expYearSelect').html();
+			$packageSelect = $('#packageSelect').html();
+			self.planChosen($packageSelect);
+			var inps = [
+			    $city.getValidInput(),
+			    $zip.getValidInput(),
+			    $emailTextField.getValidInput(),
+			    $cardName.getValidInput(),
+			    $ccNum.getValidInput(),
+			    $state.getValidInput(),
+			    $address.getValidInput(),
+			    $personName.getValidInput(),
+			    $phoneNumber.getValidInput()
+			];
+			if (self.inputsValid(inps)) {
+				if (self.entityInfos().length) {
+					self.userParams({
+						email: $emailTextField.getValidInput(),
+						personName: $personName.getValidInput(),
+						phoneNumber: $phoneNumber.getValidInput(),
+						optimusUserId: ''
+					});
+					self.ccNumber($ccNum.getValidInput());
+					self.processPayment();
+				} else {
+					$('#loadingGif').hide();
+					$submitButton.enable();
+					alert("Must add a location before submitting form.")					
+				}
+			} else {
+				$('#loadingGif').hide();
+				$submitButton.enable();
+				alert("Please enter valid input for each field.")
+			}	    	
+	    },
+	    addLocation: function() {
+	    	var self = this;
+	    	var packageSelected = $("#packageSelecter").val()
+            planMapping = {
+            	'Base': {'price': 49, 'plan': {"5" : "13861"}},
+            	'Gold': {'price': 249, 'plan': {"5" : "13862"}},
+            	'Platinum': {'price': 749, 'plan': {"5" : "13863"}}
+            }			            
+            if (!self.saleTotal()) {
+            	self.saleTotal(planMapping[packageSelected].price) 
+            } else {
+            	self.saleTotal(self.saleTotal() + planMapping[packageSelected].price)
+            }
+            var entityData = {
+            	is_primary: !self.entityInfos().length,
+            	plans:      planMapping[packageSelected].plan,
+            	name:       $locName.getValidInput(),
+            	address:    $locAddress.getValidInput(),
+            	city:       $locCity.getValidInput(),
+            	state:      $locState.getValidInput(),
+            	zip:        $locZip.getValidInput()
+            }
+            self.entityAdded(entityData);
+            self.addEntityInfo(entityData);
+            var totalPrice = $('#totalPrice').html(self.saleTotal());
+            totalPrice.formatCurrency();
+            var price = planMapping[packageSelected].price;
+			$('#locationEntryTable').append(
+				$locationEntry = G.controls.LocationEntry.create()
+					.locationName($locName.getValidInput())
+					.address($locAddress.getValidInput())
+					.city($locCity.getValidInput())
+					.state($locState.getValidInput())
+					.zip($locZip.getValidInput())
+					.price('$' + price)
+			);	 
+			$locationEntry.$delete().click(function() {
+				self.removeEntityInfo(entityData.name);
+				self.saleTotal(self.saleTotal() - price)
+	            var totalPrice = $('#totalPrice').html(self.saleTotal());
+	            totalPrice.formatCurrency();	    				
+			})
+			$locName.content('');
+			$locAddress.content('');
+			$locCity.content('');
+			$locState.content('');
+			$locZip.content('');	    	
+	    },
 		initialize: function() {
 			var self = this;
-			this.inDocument(function() {				
+			this.inDocument(function() {	
+				self.entityInfos([]);
     			$("#emailTextFieldHole").append(
 	    			$emailTextField = G.controls.TextField.create()
 						.id('account_email')
 						.validateEmail(true)
-						.required(false)
+						.required(true)
+						.bgColorOnFocus('#EDF6FD')
 						.placeHolderText('Email Address')
 						.attr({
 							name: 'Email',
@@ -192,7 +306,8 @@ $(document).ready(function() {
     			$("#dealershipNameTextFieldHole").append(
     	    		$dealershipName = G.controls.TextField.create()
 						.id('business_name')
-						.required(false)
+						.required(true)
+						.bgColorOnFocus('#EDF6FD')
 						.placeHolderText('Dealership Name')
 						.attr({
 							name: 'DealershipName',
@@ -202,7 +317,8 @@ $(document).ready(function() {
     			$("#personName").append(
     					$personName = G.controls.TextField.create()
 						.id('account_first_name')
-						.required(false)
+						.required(true)
+						.bgColorOnFocus('#EDF6FD')
 						.placeHolderText('Your Name')
 						.attr({
 							id: 'name',
@@ -214,7 +330,8 @@ $(document).ready(function() {
     			$("#phoneNumber").append(
     					$phoneNumber = G.controls.TextField.create()
 						.id('phone')
-						.required(false)
+						.bgColorOnFocus('#EDF6FD')
+						.required(true)
 						.placeHolderText('Phone Number')
 						.attr({
 							id: 'phone',
@@ -226,7 +343,8 @@ $(document).ready(function() {
     			$("#ccNum").append(
 	    			$ccNum = G.controls.TextField.create()
 						.id('accountNumberField')
-						.required(false)
+						.required(true)
+						.bgColorOnFocus('#EDF6FD')
 						.placeHolderText('Card Number')
 						.css({ 'width': 300 })
 						.attr({
@@ -238,7 +356,8 @@ $(document).ready(function() {
     			$("#cardName").append(
     	    			$cardName = G.controls.TextField.create()
     						.id('first_name')
-    						.required(false)
+    						.required(true)
+    						.bgColorOnFocus('#EDF6FD')
     						.css({ 'width': 300 })
     						.placeHolderText('Name on card')
     						.attr({
@@ -250,7 +369,8 @@ $(document).ready(function() {
     			$("#address").append(
     	    			$address = G.controls.TextField.create()
     						.id('address1')
-    						.required(false)
+    						.required(true)
+    						.bgColorOnFocus('#EDF6FD')
     						.css({ 'width': 300 })
     						.placeHolderText('Address')
     						.attr({
@@ -262,7 +382,8 @@ $(document).ready(function() {
     			$("#city").append(
     	    			$city = G.controls.TextField.create()
     						.id('address_city')
-    						.required(false)
+    						.required(true)
+    						.bgColorOnFocus('#EDF6FD')
     						.placeHolderText('City')
     						.attr({
     							name: 'city',
@@ -273,7 +394,8 @@ $(document).ready(function() {
     			$("#state").append(
     	    			$state = G.controls.TextField.create()
     						.id('address_state')
-    						.required(false)
+    						.required(true)
+    						.bgColorOnFocus('#EDF6FD')
     						.placeHolderText('State/Province')
     						.attr({
     							name: 'state',
@@ -284,49 +406,85 @@ $(document).ready(function() {
     			$("#zip").append(
     	    			$zip = G.controls.TextField.create()
     						.id('address_zip')
-    						.required(false)
+    						.required(true)
+    						.bgColorOnFocus('#EDF6FD')
     						.placeHolderText('ZIP/Postal Code')
     						.attr({
     							name: 'zip',
     							class: 'field'
     						})
     				);
-				$('#submitButton').css({
-					'cursor': 'pointer'
-				}).click(function() {
-					$('#loadingGif').show();
-					$expMonth = $('#expMonthSelect .enhancedtrigger.enhancedtrigger').html();
-					$expYear = $('#expYearSelect .enhancedtrigger.enhancedtrigger').html();
-					$packageSelect = $('#packageSelect .enhancedtrigger.enhancedtrigger').html();
-					self.planChosen($packageSelect);
+    			
+    			$("#locName").append(
+	    			$locName = G.controls.TextField.create()
+						.id('location_name')
+						.required(true)
+						.attr({
+							name: 'location_name',
+							class: 'field'
+						})
+    			);
+    			
+    			$("#locAddress").append(
+	    			$locAddress = G.controls.TextField.create()
+						.id('location_address')
+						.required(true)
+						.attr({
+							name: 'location_address',
+							class: 'field'
+						})
+        			);
+    			$("#locCity").append(
+	    			$locCity = G.controls.TextField.create()
+						.id('location_city')
+						.required(true)
+						.attr({
+							name: 'location_city',
+							class: 'field'
+						})
+        			);
+    			$("#locState").append(
+	    			$locState = G.controls.TextField.create()
+						.id('location_state')
+						.required(true)
+						.attr({
+							name: 'location_state',
+							class: 'field'
+						})
+        			);
+    			$("#locZip").append(
+	    			$locZip = G.controls.TextField.create()
+						.id('location_zip')
+						.required(true)
+						.attr({
+							name: 'location_zip',
+							class: 'field'
+						})
+    			);    			
+    			
+    			$('#addLocationButton').click(function() {
 					var inps = [
-					    $city.getValidInput(),
-					    $zip.getValidInput(),
-					    $emailTextField.getValidInput(),
-					    $dealershipName.getValidInput(),
-					    $cardName.getValidInput(),
-					    $ccNum.getValidInput(),
-					    $state.getValidInput(),
-					    $personName.getValidInput(),
-					    $phoneNumber.getValidInput()
-					];
-					if (self.inputsValid(inps)) {
-						self.userParams({
-    						email: $emailTextField.getValidInput(),
-    						dealershipName: $dealershipName.getValidInput(),
-    						personName: $personName.getValidInput(),
-    						phoneNumber: $phoneNumber.getValidInput(),
-    						packageSelected: $packageSelect,
-    						optimusUserId: ''
-        				});
-						self.ccNumber($ccNum.getValidInput());
-						self.processPayment();
+					    $locName.getValidInput(),
+					    $locAddress.getValidInput(),
+					    $locCity.getValidInput(),
+					    $locState.getValidInput(),
+					    $locZip.getValidInput()
+					]; 
+					;
+					if (self.inputsValid(inps)) {	
+						self.addLocation();
 					} else {
-						$('#loadingGif').hide();
-						alert("Please enter valid input for each field.")
+						alert('Must fill all fields to add a location');
 					}
-
-				});
+    			})
+    			$('#submitButton').append(
+    				$submitButton = G.controls.SubmitButton
+    					.create('Complete Purchase')
+    					.click(function() {
+    						$submitButton.disable();
+	    					self.onSubmit();
+	    				})
+    			)
     			
 			});
 		}

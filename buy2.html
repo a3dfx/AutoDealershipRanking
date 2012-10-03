@@ -1,4 +1,5 @@
-<body id="search">
+
+<body id="buy">
 
 
 <div id="wrapper">
@@ -11,7 +12,8 @@
     <li class="active"><a href="/products">Buy</a></li>
 </ul><!-- nav-->
 
-	<a href="/"><img src="/static/images/logo.png" alt="" class="logo" /></a>
+
+	<a href="index.html"><img src="static/images/logo.png" alt="" class="logo" /></a>
 </div><!-- header-->
 
 <div id="content" class="round">
@@ -22,96 +24,178 @@
 	
 </div><!-- subheading-->
 
-<img src="/static/images/packages.jpg" style="margin: 0 0 0 1px"/>
+<div class="sectionWrapper">
+<div class="packages">
+        <div class="block base">
+        <div class="pad">
+                <h1 class="type">BASE</h1>
+                <h1>Review Management Software</h1>
+                <h1 class="price">$49/month</h1>
+                <ul>
+                <li>Monitor online reviews and social mentions</li>
+                <li>Recieve email alerts for new reviews and mentions</li>
+                <li>Request reviews from your customers</li>
+                <li>Patented Reputation scoring showing you how you measure up</li>
+                </ul>
+        </div></div>
+        
+        <div class="block gold">
+        <div class="pad">
+                <h1 class="type">GOLD</h1>
+                <h1>Fully Managed Service</h1>
+                <h1 class="price">$249/month</h1>
+                <h2>Everything in the Base Plan plus:</h2>
+                <ul>
+                <li>Named Reputation Advisor to assist you with any reputation issues</li>
+                <li>We request and respond to customer reviews and social media postings.</li>
+                <li>We will immediately notify you if major issues arise in reviews.</li>
+                <li>Aid in crisis management</li>
 
-<div class="row" style="width: 924px; margin-left: 16px; height: 100px;">
-<hr style="border-top: 2px solid #ddd;"></hr>
-<h1 style="color: #000; padding: 16px; padding-bottom: 5px;">Package Details</h1> 
-     <div class="filters">
-     <div class="dropDownContainer" id="packageSelect"><label>Subscription Type: </label>
-     <div class="select">
-     <select class="enhance" name="" id="package" >
-			<option value="" style="background: #ddd;">Base</option>
-			<option value="">Gold</option>
-			<option value="">Platinum</option>    
-	</select></div>
-	<div style="padding-bottom: 30px; width: 205px; float: left; padding-right: 0px; padding-top: 0px;" class="pad" id="dealershipNameTextFieldHole"></div> 
-    </div>
-     </div>
+                </ul>
+        </div></div>
+        
+        <div class="block platinum">
+        <div class="pad">
+                <h1 class="type">PLATINUM</h1>
+                <h1>Real-time, High-touch Service</h1>
+                <h1 class="price">$749/month</h1>
+                <h2>Everything in the Gold Plan plus:</h2>
+      <ul>
+                <li>We will develop a custom engagement plan based on social media best practices and the needs of your business</li>
+				<li>Guarantee your online reputation will be in the top 20% nationally for your industry</li>
+                </ul>
+        </div></div>
+
+
+</div><!-- packages-->
+
+
+
+
+<div class="section locations">
+<div class="pad">
+<h1>Select a Location</h1>
+<table id="locationEntryTable" width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <th><label>Location Name</label> <span id='locName'></span></th>
+    <th><label>Address</label> <span id='locAddress'></span></th>
+    <th><label>City</label> <span id='locCity'></span></th>
+    <th><label>State</label> <span id='locState'></span></th>
+    <th><label>ZIP</label> <span id='locZip'></span></th>
+    <th><label>Package</label> <span >
+    	<select class="" name="" id='packageSelecter' style="background: #FFF; border: 1px solid #CCCCCC; padding: 5px; text-align: left;">
+			<option value="Base" style="background: #ddd;">Base</option>
+			<option value="Gold">Gold</option>
+			<option value="Platinum">Platinum</option>    
+		</select>
+	</span></th>
+	<th valign="bottom" style="vertical-align: bottom;"><a id="addLocationButton" class="button">Add&nbsp;Location</a></th>
+  </tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr class="total">
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td colspan="2">Total: <span id='totalPrice'>$0</span></td>
+  </tr>
+</table>
+</div></div><!-- section-->
+
+
+
+<div class="section account">
+<div class="pad">
+<h1>Account Information</h1>
+<span id='emailTextFieldHole'></span>
+<span id='personName'></span>
+<span id='phoneNumber'></span>
+</div></div><!-- section-->
+
+
+
+<div class="section account">
+<div class="pad">
+<h1>Payment Information</h1>
+
+<div class="row">
+<span id='ccNum'></span>
+<span id='cardName'></span>
+<span class="narrow" id="expMonthSelect" style="margin-top: 0px;">
+	    <select class="narrow" name="" id="monthYear" style="background: none; border: 1px solid #CCCCCC; padding: 5px; text-align: center;">
+				<option value="01" style="background: #ddd;">01</option>
+				<option value="02">02</option>
+				<option value="03">03</option>
+				<option value="04">04</option>
+				<option value="05">05</option>
+				<option value="06">06</option>
+				<option value="07">07</option>
+				<option value="08">08</option>
+				<option value="09">09</option>
+				<option value="10">10</option>
+				<option value="11">11</option>
+				<option value="12">12</option> 
+		</select>
+</span>
+<span class="narrow" id="expYearSelect" style="margin-top: 0px;">
+    <select class="narrow" name="" id="expYear"  style="background: none; border: 1px solid #CCCCCC; padding: 5px; text-align: center;">
+			<option value="2012" style="background: #ddd;">2012</option>
+			<option value="2013">2013</option>
+			<option value="2014">2014</option>
+			<option value="2015">2015</option>
+			<option value="2016">2016</option>
+			<option value="2017">2017</option>
+			<option value="2018">2018</option>
+			<option value="2019">2019</option>
+			<option value="2020">2020</option>
+			<option value="2021">2021</option>
+			<option value="2023">2023</option>
+			<option value="2024">2024</option>
+			<option value="2025">2025</option>  
+	</select>
+</span>
 </div>
 
-
-<div class="row" style="width: 924px; margin-left: 16px; height: 100px;">
-<h1 style="color: #000; padding: 16px; padding-bottom: 5px;">Account Information</h1>
-<div style="padding-bottom: 30px; width: 205px; float: left; padding-right: 0px;" class="pad" id="emailTextFieldHole"></div> 
-<div style="padding-bottom: 30px; width: 205px; float: left; padding-right: 0px;" class="pad" id="personName"></div> 
-<div style="padding-bottom: 30px; width: 205px; float: left; padding-right: 0px;" class="pad" id="phoneNumber"></div> 
+<div class="row">
+<span id='address'></span>
 </div>
 
-<div class="row" style="width: 924px; margin-left: 16px; height: 215px;">
-<h1 style="color: #000; padding: 16px; padding-bottom: 15px;">Payment Information</h1>
-
-<div style="padding-bottom: 10px; width: 205px; padding-right: 0px; padding-left: 13px; float: left;" id="ccNum"></div>
-<div class="filters" style="float: left; width: 0px; margin-left: 88px">
-<div class="dropDownContainer" id="expMonthSelect" style="margin-top: 0px;">
-    <div class="select">
-    <select class="enhance" name="" id="monthYear" >
-			<option value="" style="background: #ddd;">01</option>
-			<option value="">02</option>
-			<option value="">03</option>
-			<option value="">04</option>
-			<option value="">05</option>
-			<option value="">06</option>
-			<option value="">07</option>
-			<option value="">08</option>
-			<option value="">09</option>
-			<option value="">10</option>
-			<option value="">11</option>
-			<option value="">12</option> 
-</select></div>
-  </div>
-   </div>
-<div class="filters" style="float: left; width: 0px; margin-left: 186px">
-<div class="dropDownContainer" id="expYearSelect" style="margin-top: 0px;">
-    <div class="select">
-    <select class="enhance" name="" id="expYear" style="background: none; border: 1px solid #CCCCCC; padding: 4px;">
-			<option value="" >2012</option>
-			<option value="">2013</option>
-			<option value="">2014</option>
-			<option value="">2015</option>
-			<option value="">2016</option>
-			<option value="">2017</option>
-			<option value="">2018</option>
-			<option value="">2019</option>
-			<option value="">2020</option>
-			<option value="">2021</option>
-			<option value="">2023</option>
-			<option value="">2024</option>
-			<option value="">2025</option>  
-</select></div>
-  </div>
-   </div>   
-<div style="padding-bottom: 10px; width: 205px; padding-right: 0px; padding-left: 13px;" id="cardName"></div> 
-<div style="padding-bottom: 10px; width: 205px; padding-right: 0px; padding-left: 13px;" id="address"></div> 
-<div style="padding-bottom: 10px; width: 205px; padding-right: 0px; padding-left: 13px; float: left;" id="city"></div> 
-<div style="padding-bottom: 10px; width: 205px; padding-right: 0px; padding-left: 13px; float: left;" id="state"></div> 
-<div style="padding-bottom: 10px; width: 205px; padding-right: 0px; padding-left: 13px; float: left;" id="zip"></div> 
-<div class="filters" style="float: left; width: 0px;">
-<div class="dropDownContainer" id="countrySelect" style="margin-top: 0px;">
-    <div class="select">
-    <select class="enhance" name="" id="packageSelect" >
+<div class="row">
+<span id='city'></span>
+<span id='state'></span>
+<span id='zip'></span>
+<span class="medium" id="countrySelect" style="margin-top: 0px;" >
+    <select class="narrow" name="" id="packageSelect" style="background: none; border: 1px solid #CCCCCC; padding: 5px; text-align: left;">
 		<option regionid="233" value="USA" selected="">UNITED STATES</option><option regionid="1" value="AFG">AFGHANISTAN</option><option regionid="3" value="ALB">ALBANIA</option><option regionid="4" value="DZA">ALGERIA</option><option regionid="5" value="ASM">AMERICAN SAMOA</option><option regionid="6" value="AND">ANDORRA</option><option regionid="7" value="AGO">ANGOLA</option><option regionid="8" value="AIA">ANGUILLA</option><option regionid="9" value="ATA">ANTARCTICA</option><option regionid="10" value="ATG">ANTIGUA AND BARBUDA</option><option regionid="11" value="ARG">ARGENTINA</option><option regionid="12" value="ARM">ARMENIA</option><option regionid="13" value="ABW">ARUBA</option><option regionid="14" value="AUS">AUSTRALIA</option><option regionid="15" value="AUT">AUSTRIA</option><option regionid="16" value="AZE">AZERBAIJAN</option><option regionid="17" value="BHS">BAHAMAS</option><option regionid="18" value="BHR">BAHRAIN</option><option regionid="19" value="BGD">BANGLADESH</option><option regionid="20" value="BRB">BARBADOS</option><option regionid="21" value="BLR">BELARUS</option><option regionid="22" value="BEL">BELGIUM</option><option regionid="23" value="BLZ">BELIZE</option><option regionid="24" value="BEN">BENIN</option><option regionid="25" value="BMU">BERMUDA</option><option regionid="26" value="BTN">BHUTAN</option><option regionid="27" value="BOL">BOLIVIA</option><option regionid="28" value="BIH">BOSNIA AND HERZEGOVINA</option><option regionid="29" value="BWA">BOTSWANA</option><option regionid="30" value="BVT">BOUVET ISLAND</option><option regionid="31" value="BRA">BRAZIL</option><option regionid="32" value="IOT">BRITISH INDIAN OCEAN</option><option regionid="33" value="BRN">BRUNEI DARUSSALAM</option><option regionid="34" value="BGR">BULGARIA</option><option regionid="35" value="BFA">BURKINA FASO</option><option regionid="36" value="BDI">BURUNDI</option><option regionid="37" value="KHM">CAMBODIA</option><option regionid="38" value="CMR">CAMEROON</option><option regionid="39" value="CAN">CANADA</option><option regionid="40" value="CPV">CAPE VERDE</option><option regionid="41" value="CYM">CAYMAN ISLANDS</option><option regionid="42" value="CAF">CENTRAL AFRICAN REPUBLIC</option><option regionid="43" value="TCD">CHAD</option><option regionid="44" value="CHL">CHILE</option><option regionid="45" value="CHN">CHINA</option><option regionid="46" value="CXR">CHRISTMAS ISLAND</option><option regionid="47" value="CCK">COCOS (KEELING) ISLANDS</option><option regionid="48" value="COL">COLOMBIA</option><option regionid="49" value="COM">COMOROS</option><option regionid="50" value="COG">CONGO</option><option regionid="52" value="COK">COOK ISLANDS</option><option regionid="53" value="CRI">COSTA RICA</option><option regionid="55" value="HRV">CROATIA</option><option regionid="56" value="CUB">CUBA</option><option regionid="57" value="CYP">CYPRUS</option><option regionid="58" value="CZE">CZECH REPUBLIC</option><option regionid="59" value="DNK">DENMARK</option><option regionid="60" value="DJI">DJIBOUTI</option><option regionid="61" value="DMA">DOMINICA</option><option regionid="62" value="DOM">DOMINICAN REPUBLIC</option><option regionid="63" value="ECU">ECUADOR</option><option regionid="64" value="EGY">EGYPT</option><option regionid="65" value="SLV">EL SALVADOR</option><option regionid="66" value="GNQ">EQUATORIAL GUINEA</option><option regionid="67" value="ERI">ERITREA</option><option regionid="68" value="EST">ESTONIA</option><option regionid="69" value="ETH">ETHIOPIA</option><option regionid="70" value="FLK">FALKLAND ISLANDS (MALVINAS)</option><option regionid="71" value="FRO">FAROE ISLANDS</option><option regionid="72" value="FJI">FIJI</option><option regionid="73" value="FIN">FINLAND</option><option regionid="74" value="FRA">FRANCE</option><option regionid="75" value="GUF">FRENCH GUIANA</option><option regionid="76" value="PYF">FRENCH POLYNESIA</option><option regionid="77" value="ATF">FRENCH SOUTHERN TERRITORIES</option><option regionid="78" value="GAB">GABON</option><option regionid="79" value="GMB">GAMBIA</option><option regionid="80" value="GEO">GEORGIA</option><option regionid="81" value="DEU">GERMANY</option><option regionid="82" value="GHA">GHANA</option><option regionid="83" value="GIB">GIBRALTAR</option><option regionid="84" value="GRC">GREECE</option><option regionid="85" value="GRL">GREENLAND</option><option regionid="86" value="GRD">GRENADA</option><option regionid="87" value="GLP">GUADELOUPE</option><option regionid="88" value="GUM">GUAM</option><option regionid="89" value="GTM">GUATEMALA</option><option regionid="90" value="GGY">GUERNSEY</option><option regionid="91" value="GIN">GUINEA</option><option regionid="92" value="GNB">GUINEA-BISSAU</option><option regionid="93" value="GUY">GUYANA</option><option regionid="94" value="HTI">HAITI</option><option regionid="96" value="VAT">HOLY SEE (VATICAN CITY STATE)</option><option regionid="97" value="HND">HONDURAS</option><option regionid="98" value="HKG">HONG KONG</option><option regionid="99" value="HUN">HUNGARY</option><option regionid="100" value="ISL">ICELAND</option><option regionid="101" value="IND">INDIA</option><option regionid="102" value="IDN">INDONESIA</option><option regionid="103" value="IRN">IRAN, ISLAMIC REPUBLIC OF</option><option regionid="104" value="IRQ">IRAQ</option><option regionid="105" value="IRL">IRELAND</option><option regionid="106" value="IMN">ISLE OF MAN</option><option regionid="107" value="ISR">ISRAEL</option><option regionid="108" value="ITA">ITALY</option><option regionid="109" value="JAM">JAMAICA</option><option regionid="110" value="JPN">JAPAN</option><option regionid="111" value="JEY">JERSEY</option><option regionid="112" value="JOR">JORDAN</option><option regionid="113" value="KAZ">KAZAKHSTAN</option><option regionid="114" value="KEN">KENYA</option><option regionid="115" value="KIR">KIRIBATI</option><option regionid="116" value="PRK">KOREA</option><option regionid="118" value="KWT">KUWAIT</option><option regionid="119" value="KGZ">KYRGYZSTAN</option><option regionid="120" value="LAO">LAO</option><option regionid="121" value="LVA">LATVIA</option><option regionid="122" value="LBN">LEBANON</option><option regionid="123" value="LSO">LESOTHO</option><option regionid="124" value="LBR">LIBERIA</option><option regionid="125" value="LBY">LIBYAN ARAB JAMAHIRIYA</option><option regionid="126" value="LIE">LIECHTENSTEIN</option><option regionid="127" value="LTU">LITHUANIA</option><option regionid="128" value="LUX">LUXEMBOURG</option><option regionid="129" value="MAC">MACAO</option><option regionid="130" value="MKD">MACEDONIA</option><option regionid="131" value="MDG">MADAGASCAR</option><option regionid="132" value="MWI">MALAWI</option><option regionid="133" value="MYS">MALAYSIA</option><option regionid="134" value="MDV">MALDIVES</option><option regionid="135" value="MLI">MALI</option><option regionid="136" value="MLT">MALTA</option><option regionid="137" value="MHL">MARSHALL ISLANDS</option><option regionid="138" value="MTQ">MARTINIQUE</option><option regionid="139" value="MRT">MAURITANIA</option><option regionid="140" value="MUS">MAURITIUS</option><option regionid="141" value="MYT">MAYOTTE</option><option regionid="142" value="MEX">MEXICO</option><option regionid="143" value="FSM">MICRONESIA</option><option regionid="144" value="MDA">MOLDOVA, REPUBLIC OF</option><option regionid="145" value="MCO">MONACO</option><option regionid="146" value="MNG">MONGOLIA</option><option regionid="147" value="MNE">MONTENEGRO</option><option regionid="148" value="MSR">MONTSERRAT</option><option regionid="149" value="MAR">MOROCCO</option><option regionid="150" value="MOZ">MOZAMBIQUE</option><option regionid="151" value="MMR">MYANMAR</option><option regionid="152" value="NAM">NAMIBIA</option><option regionid="153" value="NRU">NAURU</option><option regionid="154" value="NPL">NEPAL</option><option regionid="155" value="NLD">NETHERLANDS</option><option regionid="156" value="ANT">NETHERLANDS ANTILLES</option><option regionid="157" value="NCL">NEW CALEDONIA</option><option regionid="158" value="NZL">NEW ZEALAND</option><option regionid="159" value="NIC">NICARAGUA</option><option regionid="160" value="NER">NIGER</option><option regionid="161" value="NGA">NIGERIA</option><option regionid="162" value="NIU">NIUE</option><option regionid="163" value="NFK">NORFOLK ISLAND</option><option regionid="164" value="MNP">NORTHERN MARIANA ISLANDS</option><option regionid="165" value="NOR">NORWAY</option><option regionid="166" value="OMN">OMAN</option><option regionid="167" value="PAK">PAKISTAN</option><option regionid="168" value="PLW">PALAU</option><option regionid="169" value="PSE">PALESTINE</option><option regionid="170" value="PAN">PANAMA</option><option regionid="171" value="PNG">PAPUA NEW GUINEA</option><option regionid="172" value="PRY">PARAGUAY</option><option regionid="173" value="PER">PERU</option><option regionid="174" value="PHL">PHILIPPINES</option><option regionid="175" value="PCN">PITCAIRN</option><option regionid="176" value="POL">POLAND</option><option regionid="177" value="PRT">PORTUGAL</option><option regionid="178" value="PRI">PUERTO RICO</option><option regionid="179" value="QAT">QATAR</option><option regionid="180" value="REU">REUNION</option><option regionid="181" value="ROU">ROMANIA</option><option regionid="182" value="RUS">RUSSIAN FEDERATION</option><option regionid="183" value="RWA">RWANDA</option><option regionid="184" value="NULL">SAINT BARTH+LEMY</option><option regionid="185" value="SHN">SAINT HELENA</option><option regionid="186" value="KNA">SAINT KITTS AND NEVIS</option><option regionid="187" value="LCA">SAINT LUCIA</option><option regionid="188" value="NULL">SAINT MARTIN</option><option regionid="189" value="SPM">SAINT PIERRE AND MIQUELON</option><option regionid="190" value="VCT">SAINT VINCENT</option><option regionid="191" value="WSM">SAMOA</option><option regionid="192" value="SMR">SAN MARINO</option><option regionid="193" value="STP">SAO TOME AND PRINCIPE</option><option regionid="194" value="SAU">SAUDI ARABIA</option><option regionid="195" value="SEN">SENEGAL</option><option regionid="196" value="SRB">SERBIA</option><option regionid="197" value="SYC">SEYCHELLES</option><option regionid="198" value="SLE">SIERRA LEONE</option><option regionid="199" value="SGP">SINGAPORE</option><option regionid="200" value="SVK">SLOVAKIA</option><option regionid="201" value="SVN">SLOVENIA</option><option regionid="202" value="SLB">SOLOMON ISLANDS</option><option regionid="203" value="SOM">SOMALIA</option><option regionid="204" value="ZAF">SOUTH AFRICA</option><option regionid="205" value="SGS">SOUTH GEORGIA</option><option regionid="206" value="ESP">SPAIN</option><option regionid="207" value="LKA">SRI LANKA</option><option regionid="208" value="SDN">SUDAN</option><option regionid="209" value="SUR">SURINAME</option><option regionid="210" value="SJM">SVALBARD AND JAN MAYEN</option><option regionid="211" value="SWZ">SWAZILAND</option><option regionid="212" value="SWE">SWEDEN</option><option regionid="213" value="CHE">SWITZERLAND</option><option regionid="214" value="SYR">SYRIAN ARAB REPUBLIC</option><option regionid="215" value="TWN">TAIWAN, PROVINCE OF CHINA</option><option regionid="216" value="TJK">TAJIKISTAN</option><option regionid="217" value="TZA">TANZANIA, UNITED REPUBLIC OF</option><option regionid="218" value="THA">THAILAND</option><option regionid="219" value="TLS">TIMOR-LESTE</option><option regionid="220" value="TGO">TOGO</option><option regionid="221" value="TKL">TOKELAU</option><option regionid="222" value="TON">TONGA</option><option regionid="223" value="TTO">TRINIDAD AND TOBAGO</option><option regionid="224" value="TUN">TUNISIA</option><option regionid="225" value="TUR">TURKEY</option><option regionid="226" value="TKM">TURKMENISTAN</option><option regionid="227" value="TCA">TURKS AND CAICOS ISLANDS</option><option regionid="228" value="TUV">TUVALU</option><option regionid="229" value="UGA">UGANDA</option><option regionid="230" value="UKR">UKRAINE</option><option regionid="231" value="ARE">UNITED ARAB EMIRATES</option><option regionid="232" value="GBR">UNITED KINGDOM</option><option regionid="235" value="URY">URUGUAY</option><option regionid="236" value="UZB">UZBEKISTAN</option><option regionid="237" value="VUT">VANUATU</option><option regionid="238" value="VEN">VENEZUELA</option><option regionid="239" value="VNM">VIET NAM</option><option regionid="240" value="VGB">VIRGIN ISLANDS, BRITISH</option><option regionid="241" value="VIR">VIRGIN ISLANDS, U.S.</option><option regionid="242" value="WLF">WALLIS AND FUTUNA</option><option regionid="243" value="ESH">WESTERN SAHARA</option><option regionid="244" value="YEM">YEMEN</option><option regionid="245" value="ZMB">ZAMBIA</option><option regionid="246" value="ZWE">ZIMBABWE</option>   
-</select></div>
-  </div>
-   </div>
+	</select>
+  </span>
 </div>
-<div>
-<a id="submitButton" style="margin-top: 27px; margin-right: 13px;" class="button">Complete Purchase</a>
-<img id="loadingGif" alt="" src="/static/images/loading.gif" style="float: right; margin-top: 30px; margin-right: 10px; display: none;">
-</div>
+
+
+</div></div><!-- section-->
+
+
+
+<div class="section cta">
+<div class="pad" align="right">
+	<img id="loadingGif" alt="" src="/static/images/loading.gif" style="display: inline; float: left; margin-left: 675px; margin-right: 10px; margin-top: 6px; display: none;">
+	<div id="submitButton"></div>
+</div></div>
+
+<br clear="all" />
+
 </div><!-- content-->
 
- <form method="post" id="fCheckout" name="fCheckout">
+
+
+
+<div id="footer">
+<p class="">&copy; 2012 Reputation.com</p>
+</div> <!-- footer-->
+
+     <form method="post" id="fCheckout" name="fCheckout">
      <input type="hidden" id="response$paypageRegistrationId" 
      name="response$paypageRegistrationId" readOnly="true" value=""/>
      <input type="hidden" id="response$bin" name="response$bin"  readOnly="true"/>
@@ -125,13 +209,6 @@
      <input type="hidden" id="request$orderId" name="request$orderId" value="order_123"/>
      <input type="hidden" id="request$reportGroup" name="request$reportGroup" value="repdeftoken"/>
  </form>
-
-
-
-<div id="footer">
-<p class="">&copy; 2012 Reputation.com</p>
-</div> <!-- footer-->
-    
      
   </div><!-- container-->
 </div><!-- wrapper-->

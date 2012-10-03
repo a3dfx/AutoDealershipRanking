@@ -1,5 +1,6 @@
 $(document).ready(function() {
 	G.addControl("TextField", Control.sub({
+		tag: 'span',
 	    inherited: {
 	        content: 
 	        	[	          	 
@@ -30,6 +31,7 @@ $(document).ready(function() {
 	    charLimit: Control.property(),
 	    css: Control.chain('$textField', 'css'),
 	    attr: Control.chain('$textField', 'attr'),
+	    bgColorOnFocus: Control.property(),
 	    placeHolderText: Control.property(function(text) {
 	    	if (text == undefined) {
 	    		return text
@@ -88,18 +90,30 @@ $(document).ready(function() {
 		        	});	        	
 		        	this.$errorMarker().fadeIn('slow'); 	        		
 	        	} else {
+		        	this.$textField().css({
+		        		"border": "1px solid #A00000",
+		        		"background-color": '#FFEEEE'
+		        	});	        		
 	        		//this.$errorContainer().show().content(this.errorMessage());        		        		
-	        	}	        	
+	        	}	
 	        	null
 	        }
 	    },
 	    initialize: function() {
 	    	var self = this;
 	    	this.$textField().focus(function() {
+	    		self.$textField().css({
+	    			'border': '1px solid #2E7BB1',
+	    			'background': 'none repeat scroll 0 0 ' + self.bgColorOnFocus() || '#FFF'
+	    		});
 	    		if (self.$textField().content() == self.placeHolderText()) {
 	    			self.$textField().content(null);
 	    		}
 	    	}).blur(function() {
+	    		self.$textField().css({
+	    			'border': '1px solid #CCC',
+	    			'background': '#FFF'
+	    		});	    		
 	    		if (!self.$textField().content()) {
 	    			self.$textField().content(self.placeHolderText());
 	    		}	    		
