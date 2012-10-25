@@ -61,11 +61,11 @@ $(document).ready(function() {
 				var search = function() {
 					$("#loadingGif").show();
 					$stateSelected = $('.enhancedtrigger.enhancedtrigger').html()
-	    			if (($cityTextField.getValidInput() && $stateSelected != 'Select State') || $zipTextField.getValidInput()) {
+	    			if ($cityTextField.getValidInput() && $stateSelected != 'Select State') {
 	    				$stateSelected = $stateSelected == 'Select State' ? '' : $stateSelected
 	    				var params = {
     						city: $cityTextField.getValidInput(),
-    						zip: $zipTextField.getValidInput(),
+    						//zip: $zipTextField.getValidInput(),
     						state: $stateSelected
 	    				}
 	    				$.get(self.createGetUrl(params), function(data) {
@@ -77,7 +77,7 @@ $(document).ready(function() {
 	    				alert('Please submit a valid address')
 	    			}					
 				}
-
+				/*
     			$("#zipTextFieldHole").append(
 	    			$zipTextField = G.controls.TextField.create()
 						.id('zipTextField')
@@ -93,6 +93,7 @@ $(document).ready(function() {
 						  search();
 					  }
 				});
+				*/
 				$("#cityTextFieldHole").append(
 		    		$cityTextField = G.controls.TextField.create()
 						.id('cityTextField')

@@ -48,7 +48,31 @@ $(document).ready(function() {
 	    		return this
 	    	}
 	    },
-	    getValidInput: function() {
+	    errorHighlight: function() {
+        	this.$textField().css({
+        		"border": "1px solid #A00000",
+        		"background-color": '#FFEEEE'
+        	});	
+	    },
+	    errorUnHighlight: function() {
+	    	this.$textField().css({
+    			'border': '1px solid #CCC',
+    			'background': '#FFF'
+    		});	    	
+	    },
+	    onFocusHighlight: function() {
+    		this.$textField().css({
+    			'border': '1px solid #2E7BB1',
+    			'background': 'none repeat scroll 0 0 ' + this.bgColorOnFocus() || '#FFF'
+    		});	   	    	
+	    },
+	    onBlurHighlight: function() {
+	    	this.$textField().css({
+    			'border': '1px solid #CCC',
+    			'background': '#FFF'
+    		});		    	
+	    },
+	    validateRequiredField: function() {
 	    	var inputValid = false;
 	    	this.errorMessage('Invalid input');
 	        if (this.validateEmail()) {
@@ -59,11 +83,8 @@ $(document).ready(function() {
 	        	var pattern = new RegExp(/<(.|\n)*?>/g);
 	        	if (!pattern.test(this.$textField().content()) &&
 	        		this.$textField().content() != this.placeHolderText()) {
-	        		inputValid = true;
-	        		if (this.required()) {
-	        			inputValid = this.$textField().content().length > 0
-	        		}
-	        	}        	
+	        		inputValid = this.$textField().content().length > 0
+	        	}       	
 	        }
     		if (this.charLimit()) {
     			if (this.$textField().content().length <= this.charLimit()) {
@@ -73,51 +94,46 @@ $(document).ready(function() {
     				this.errorMessage('Value entered above character limit of ' + this.charLimit());
     			}
     		}	        
-	        if (inputValid) {
-	        	if (this.withCustomErrorDisplay()) {
-		        	this.$errorMarker().hide();
-		        	this.$textField().css({
-		        		"border": "2px solid #AAAAAA"
-		        	});	 	        		
-	        	} else {       		        
-	        		this.$errorContainer().hide();
-	        	}
+	        if (inputValid) {     		        
+	        	this.errorUnHighlight();
 	        	return this.$textField().content();
 	        } else {
-	        	if (this.withCustomErrorDisplay()) {
-		        	this.$textField().css({
-		        		"border": "4px solid #FDC038"
-		        	});	        	
-		        	this.$errorMarker().fadeIn('slow'); 	        		
-	        	} else {
-		        	this.$textField().css({
-		        		"border": "1px solid #A00000",
-		        		"background-color": '#FFEEEE'
-		        	});	        		
-	        		//this.$errorContainer().show().content(this.errorMessage());        		        		
-	        	}	
+	        	this.errorHighlight();;	        				        		        	
 	        	null
-	        }
+	        }	    	
 	    },
+	    validateNotRequiredField: function() {
+	    	if (this.$textField().content() == this.placeHolderText()) {
+	    		return null;
+	    	} else {
+	        	var pattern = new RegExp(/<(.|\n)*?>/g);
+	        	if (!pattern.test(this.$textField().content())) {
+	        		return this.$textField().content();
+	        	} else {
+	        		return null;
+	        	}	    		
+	    	}
+	    },
+	    getValidInput: function() {
+	    	if (this.required()) {
+	    		return this.validateRequiredField();
+	    	} else {
+	    		return this.validateNotRequiredField();
+	    	}
+	    },	    
 	    initialize: function() {
 	    	var self = this;
 	    	this.$textField().focus(function() {
-	    		self.$textField().css({
-	    			'border': '1px solid #2E7BB1',
-	    			'background': 'none repeat scroll 0 0 ' + self.bgColorOnFocus() || '#FFF'
-	    		});
+	    		self.onFocusHighlight();
 	    		if (self.$textField().content() == self.placeHolderText()) {
 	    			self.$textField().content(null);
 	    		}
 	    	}).blur(function() {
-	    		self.$textField().css({
-	    			'border': '1px solid #CCC',
-	    			'background': '#FFF'
-	    		});	    		
+ 	    		self.onBlurHighlight();
 	    		if (!self.$textField().content()) {
 	    			self.$textField().content(self.placeHolderText());
 	    		}	    		
 	    	});
-	    }	    
+	    }	 
 	}));
 });

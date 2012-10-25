@@ -12,6 +12,9 @@ $(document).ready(function() {
 					{
 						html: 'td',
 						ref: 'dealer',
+						css: {
+							'padding-left': 100
+						},
 						content: 
 							{
 								html: 'a',
@@ -20,11 +23,17 @@ $(document).ready(function() {
 					},
 					{
 						html: 'td',
+						css: {
+							'padding-left': 18
+						},
 						ref: 'state'
 					},
 					{
 						html: 'td',
-						ref: 'reviews'
+						ref: 'reviews',
+						css: {
+							'padding-right': 46
+						}
 					},
 					{
 						html: 'td',

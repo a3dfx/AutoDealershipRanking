@@ -12,12 +12,14 @@ $(document).ready(function() {
 				pageData = self.pageData()
 				$("#reviewCountHole").append(pageData.reviewCount);
 				$("#reviewSitesCountHole").append(pageData.reviewSiteCount);
+				$("#reviewSitesCountHole2").append(pageData.reviewSiteCount);
 				$("#dealershipNameHole").append(pageData.dealershipName);
 				$("#dealershipBrandNameHole").append(pageData.dealershipBrand);
 				$("#dealershipStateHole").append(pageData.dealershipState);
 				$("#listingsLink").attr({ href: '/publicranking/' + pageData.location_code });
 				$("#backToListingsButton").attr({ href: '/publicranking/' + pageData.location_code });
-				$("#averageRatingStarDisplayHole").append(
+				$('#avgStarRating').prepend(Math.round(pageData.averageStarRating*10)/10);
+				$("#averageRatingStarDisplayHole").prepend(
 					G.controls.StarDisplay.create()
 						.rating(pageData.averageStarRating)
 						.quarterStarPath('/static/images/star_large_quarter.png')
@@ -26,7 +28,11 @@ $(document).ready(function() {
 						.fullStarPath('/static/images/star_large_full.png')
 						.emptyStarPath('/static/images/star_large_empty.png')
 				)	
+				var reviewNotFound = false;
 				for (var i=0; i<3; i++) {
+					if (pageData.reviews[i].review == 'Not found') {
+						reviewNotFound = true
+					}
 					$personReviewsTable.append(
 						G.controls.ReviewRow.create()
 							.review(pageData.reviews[i].review)
@@ -35,6 +41,11 @@ $(document).ready(function() {
 							.reviewerLocation(pageData.reviews[i].reviewerLocation)
 							.rating(pageData.reviews[i].rating)					
 					);					
+				}
+				if (reviewNotFound) {
+					$('#personReviewsTableHole').remove();
+					$('#bottomButton').remove();
+					$('#noReviewsDisplay').show();
 				}
 				$addressDiv.append(
 					$('<div>').append(

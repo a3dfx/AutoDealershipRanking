@@ -157,20 +157,29 @@ tr.highlight a{color: #cae0ef}
 hr{border-top: 1px solid #ddd; border-bottom: 1px solid #fff; background: none;}
 #details .col2 table{border: none; border-top: 1px solid #ddd;}
 
-.avgReview{border: 1px solid #ddd; background: #fbfbfb; padding: 14px; color: #f37f29; margin: 0 auto 14px auto; width: 310px;}
+.avgReview{border: 1px solid #ddd; background: #fbfbfb; padding: 14px; color: #f37f29; margin: 0 auto 14px auto; width: 300px;}
 .avgReview span{padding-right: 10px;}
 #details .row{float: left; width: 100%; clear: both; border-bottom: 1px solid #ddd; margin: 8px 0;padding-bottom: 8px;}
 #details .col1 .row .col1{ width: 120px; }
-#details .col2 h1 {margin-bottom: 40px;}
+#details .col2 h1{margin-bottom: 40px;}
 #details .col1 .row .col2{background: none; width: 360px;border: none; }
 #details .col1 .row .col1 img{display: block; margin-bottom: 5px; width: 40px;}
 #details .stars .date{float: right; color: #999; font-size: 11px;}
 .reviews .row .button{float: right;margin: 0;}
 
 .score h2{font-size: 14px; color: #666; text-align:center;}
-.score .button{float: none; display: block; margin: 0 auto; width: 130px;}
+.score .button, .reviews .button{float: none; display: block; margin: 0 auto; width: 130px;}
 .score .about{font-size: 11px; margin: 0 0 -12px -100px; float: right;}
 
+.stats{float: left; width: 193px; text-align: center; background: #f7f7f7; border: 1px solid #ddd; height: 76px; padding: 20px; margin: 0 5px;}
+.stats h2, .siteLogos h2{color: #888; font-size: 15px; margin: 0 0 10px 0;}
+p.number{font-size: 32px; }
+.blue{color: #2e7bb1; margin-top: 16px;}
+.stats .orange{color: #F63; font-size: 20px;}
+.stats span{font-size: 13px; color: #999;}
+.stars{margin: 0 0 10px 0;}
+
+.siteLogos{text-align:center;padding-top: 20px; clear: both; margin-bottom: 30px;}
 
 /*****  find dealer *******/
 #search .col1{width: 212px; float: left;}

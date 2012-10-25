@@ -36,6 +36,7 @@ class Dealership(db.Model):
     ScoreLength = db.IntegerProperty()
     Total_number_of_reviews = db.IntegerProperty()
     Number_of_review_sites_with_reviews = db.IntegerProperty()
+    abs_total = db.IntegerProperty()
 
     One_Review = db.TextProperty()
     One_Review_Name = db.StringProperty()
@@ -84,6 +85,14 @@ def makeQuery(filters={}, orderBy=None, fetchQty=0,  memcache_key=None):
         memcache.set(memcache_key, query or '', 60)
     return query.fetch(fetchQty)
 
+def adjCase(string):
+    wrgBrands = ['Bmw', 'Gmc', 'Saab']
+    string = string.title()
+    if any([word in wrgBrands for word in string.split(' ')]):
+        return string.replace('Bmw', 'BMW').replace('Gmc', 'GMC').replace('Saab', 'SAAB')
+    else:
+        return string
+
 class BasePage(webapp.RequestHandler):
     def init_session(self):
         ''' Sets self.session to a models.Session object '''
@@ -97,7 +106,7 @@ class BasePage(webapp.RequestHandler):
         if not session:
             session_id = ''.join(random.choice('012345689abcdefghijklmnopqrstuvwxyz') for i in range(32))
             #all_dealerships = makeQuery(orderBy='-Reputation_Score', fetchQty=1000000, memcache_key='all_dealerships')
-            brand_list = 'Aston Martin|Audi|BMW|Bentley|Buick|Cadillac|Chevrolet|Chrysler|Dodge|Ferrari|Fiat|Ford|GMC|Honda|Hyundai|Isuzu|Infiniti|Isuzu|Jaguar|Jeep|Kia|Lamborghini|Land Rover|Lexus|Lincoln|Mazda|Mercedes-Benz|Mini|Mitsubishi|Nissan|Porsche|Ram|Rolls-Royce|SAAB|Subaru|Scion|Smart|Subaru|Suzuki|Tesla|Toyota|Volkswagen|Volvo'
+            brand_list = 'Acura|Aston Martin|Audi|Bentley|BMW|Buick|Cadillac|Chevrolet|Chyrsler|Dodge|Ferrari|Fiat|Ford|GMC|Honda|Hyundai|Infiniti|Isuzu|Jaguar|Jeep|Kia|Lamborghini|Land Rover|Lexus|Lincoln|Lotus|Maserati|Maybach|Mazda|Mercedes-Benz|Mercury|Mini|Mitsubishi|Nissan|Oldsmobile|Porsche|Ram|Rolls-Royce|SAAB|Scion|Smart|Subaru|Suzuki|Tesla|Toyota|Volkswagen|Volvo|Yamaha|Zap'
             state_list = 'AK|AL|AR|AZ|CA|CO|CT|DE|FL|GA|HI|IA|ID|IL|IN|KS|KY|LA|MA|MD|ME|MI|MN|MO|MS|MT|NC|ND|NE|NH|NJ|NM|NV|NY|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VA|VT|WA|WI|WV|WY'
             session = Session(key_name=session_id, brand_list=brand_list, state_list=state_list)
             #session = Session(key_name=session_id, brand_list=self.getPropertiesList(all_dealerships, 'Location_Brand'), state_list=self.getPropertiesList(all_dealerships, 'Location_State'))
@@ -148,6 +157,8 @@ class BasePage(webapp.RequestHandler):
     
     def renderPage(self):
         self.response.out.write(self.template.addScript(self.additionalScript).buildPage())
+        
+        
 
 class Splash(BasePage):
     def get(self):
@@ -186,13 +197,12 @@ class MainRankPage(BasePage):
                 'operator': '='
             },
         }, orderBy='-Reputation_Score', fetchQty=20, memcache_key='dealerships')
-        
         data['rankResults'] = []
         for rank, d in enumerate(dealerships_query):
             data['rankResults'].append({
                 'rank': rank + 1,
                 'hrefPath': '/store/%s' % d.key().name(),
-                'dealership': d.Location_Name.title(),
+                'dealership': adjCase(d.Location_Name),
                 'state': d.Location_State,
                 'numberReviews': d.Total_number_of_reviews,
                 'score': d.Reputation_Score
@@ -229,7 +239,7 @@ class PublicComparison(BasePage):
         stateFilter = self.request.get('state')
 
         data = {
-            'dealershipName': dealership.Location_Name.title(),
+            'dealershipName': adjCase(dealership.Location_Name),
             'dealershipLocationCode': dealership.key().name(),
             'address': {
                 'street': dealership.Location_Address,
@@ -253,20 +263,23 @@ class PublicComparison(BasePage):
             },
         }, orderBy='-Reputation_Score', fetchQty=20, memcache_key='dealerships_public')
 
-        dealership_rank = len(makeQuery(filters={
-            'Location_Brand_List': {
-                'value': brandFilter,
-                'operator': '='
-            },
-            'Location_State': {
-                'value': stateFilter,
-                'operator': '='
-            },
-            'Reputation_Score': {
-                'value': dealership.Reputation_Score,
-                'operator': '>'
-            }
-        }, orderBy='-Reputation_Score', fetchQty=10000000, memcache_key='dealerships_public'))
+        if brandFilter or stateFilter:
+            dealership_rank = len(makeQuery(filters={
+                'Location_Brand_List': {
+                    'value': brandFilter,
+                    'operator': '='
+                },
+                'Location_State': {
+                    'value': stateFilter,
+                    'operator': '='
+                },
+                'Reputation_Score': {
+                    'value': dealership.Reputation_Score,
+                    'operator': '>'
+                }
+            }, orderBy='-Reputation_Score', fetchQty=10000000, memcache_key='dealerships_public'))
+        else:
+            dealership_rank = dealership.abs_total or 0
         
         if dealership_rank <= 20 and all(d.key() != dealership.key() for d in dealerships_query):
             dealerships_query.insert(dealership_rank, dealership)
@@ -276,7 +289,7 @@ class PublicComparison(BasePage):
                 'hrefPath': '/store/%s' % d.key().name(),
                 'highlight': d.key() == dealership.key(),
                 'rank': rank + 1,
-                'dealership': d.Location_Name.title(),
+                'dealership': adjCase(d.Location_Name),
                 'state': d.Location_State,
                 'numberReviews': d.Total_number_of_reviews,
                 'score': d.Reputation_Score
@@ -287,7 +300,7 @@ class PublicComparison(BasePage):
                 'highlight': True,
                 'rank': dealership_rank,
                 'hrefPath': '/store/%s' % dealership.key().name(),
-                'dealership': dealership.Location_Name.title(),
+                'dealership': adjCase(dealership.Location_Name),
                 'state': d.Location_State,
                 'numberReviews': dealership.Total_number_of_reviews,
                 'score': dealership.Reputation_Score
@@ -348,8 +361,8 @@ class FindDealer(BasePage):
 
             for d in dealerships_query:
                 data['dealerships_list'].append({
-                    'hrefPath': '/publicranking/%s' % d.key().name(),
-                    'name': d.Location_Name.title(),
+                    'hrefPath': '/store/%s' % d.key().name(),
+                    'name': adjCase(d.Location_Name),
                     'address': '%s <br/> %s, %s %s' % (d.Location_Address, d.Location_City, d.Location_State, d.Location_Zip)
                 })
 
@@ -396,7 +409,7 @@ class Buy(BasePage):
                     19 : "Duplicate Username"
                 }
                 var accountInfo = {
-                    "account_email":"sdfzzzdsfTester@test.com",
+                    "account_email":"",
                     "account_first_name":"",
                     "account_middle_name":"",
                     "account_last_name":"",
@@ -528,7 +541,7 @@ class StorePage(BasePage):
             ],
             'reviewCount': dealership.Total_number_of_reviews,
             'reviewSiteCount': dealership.Number_of_review_sites_with_reviews  ,
-            'dealershipName': dealership.Location_Name.title(),
+            'dealershipName': adjCase(dealership.Location_Name),
             'dealershipBrand': dealership.Location_Brand.split(',')[0].title() if dealership.Location_Brand else 'Brand',
             'dealershipState': dealership.Location_State or 'State',
             'averageStarRating': dealership.Average_star_ranking_across_sites,
@@ -588,7 +601,7 @@ class StorePage(BasePage):
                 'highlight': d.key() == dealership.key(),
                 'locationCode': d.key().name(),
                 'rank': rank + 1,
-                'dealership': d.Location_Name.title(),
+                'dealership': adjCase(d.Location_Name),
                 'score': d.Reputation_Score
             })
 
@@ -597,7 +610,7 @@ class StorePage(BasePage):
                 'highlight': d.key() == dealership.key(),
                 'locationCode': d.key().name(),
                 'rank': rank + 1,
-                'dealership': d.Location_Name.title(),
+                'dealership': adjCase(d.Location_Name),
                 'score': d.Reputation_Score
             })
 
@@ -606,7 +619,7 @@ class StorePage(BasePage):
                 'highlight': True,
                 'locationCode': dealership.key().name(),
                 'rank': dealership_rank_by_state,
-                'dealership': dealership.Location_Name.title(),
+                'dealership': adjCase(dealership.Location_Name),
                 'score': dealership.Reputation_Score
             })
 
@@ -616,7 +629,7 @@ class StorePage(BasePage):
                 'highlight': True,
                 'locationCode': dealership.key().name(),
                 'rank': dealership_rank_by_brand,
-                'dealership': dealership.Location_Name.title(),
+                'dealership': adjCase(dealership.Location_Name),
                 'score': dealership.Reputation_Score
             })
 
@@ -676,24 +689,23 @@ class InsertDataBig(webapp.RequestHandler):
 
     def get(self, offsetby):
         '''
-        if not offsetby:
-            offsetby = 0
+        offsetby = int(offsetby) if offsetby else 0
         query = db.Query(Dealership).order('-Reputation_Score').fetch(500, offset=int(offsetby))
         entities = []
+        i = 0
         if len(query):
             for d in query:
-                if d.Location_Brand and not d.Location_Brand_List:
-                    brands = d.Location_Brand.split(",")
-                    d.Location_Brand_List = brands
-                    entities.append(d)
+                i += 1
+                d.abs_total = offsetby + i
+                entities.append(d)
             db.put(entities)    
             self.redirect("/insertbig/" + str(int(offsetby) + 500))    
         else:
             return
+  
         '''
         print 'hi'
-            
-
+        
 application = webapp.WSGIApplication(
                                      [
                                          ('/rank', MainRankPage),

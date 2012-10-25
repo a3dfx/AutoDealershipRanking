@@ -13,7 +13,7 @@
     <li><a href="/products">Buy</a></li>
     </ul><!-- nav-->
 
-	<a href="/"><img src="/static/images/logo.png" alt="" class="logo" /></a>
+	<a href="/rank"><img src="/static/images/logo.png" alt="" class="logo" /></a>
 </div><!-- header-->
 
 <div id="content" class="round">
@@ -36,7 +36,7 @@
 
 
 <div class="block score">
-    <a href="#score" class="inline about">About Scoring</a>
+    <a href="#score" class="inline about"><span style="padding-right: 3px; vertical-align: middle">About Scoring</span><img style="height: 15px; width: 15px; margin-bottom:-5px;" src="/static/images/info-icon.png"/></a>
 <h1>Reputation Score</h1>
 <h2>This score is based on <span id="reviewCountHole"></span> reviews found on <span id="reviewSitesCountHole"></span> review sites.</h2>
 
@@ -117,7 +117,7 @@
 
 
 
-<a href="/products" class="button">Improve My Score</a>
+<a href="/products" class="button" style="width: 200px;">Learn How to Improve Your Score</a>
 
 
 
@@ -131,14 +131,45 @@
  
  
  <hr /> 
- <div class="block reviews" id="personReviewsTableHole">
  
- 	<h1>Reviews</h1>
+ <div class="block reviews" id="noReviewsDisplay" style="display: none;">
+ 
+ <h1>Reviews</h1>
+ 
+ 
+ <div class="stats round">
+ 	<h2>Total Ratings & Reviews</h2>
+	<p id="reviewSitesCountHole2" class="number blue"></p>
+    <span>from all review sites</span>
+</div>
+    
+    
+    
+    <div class="stats round">
+ <h2>Average Rating</h2>
+ 	<div class="stars" id="averageRatingStarDisplayHole">
+ 	     	<p class="number orange" id="avgStarRating" style="margin-top: 10px;"><span>/5</span></p>
+
+    </div>
+    </div>
+    
+    <div class="siteLogos"> <h2>Sites Searched</h2>
+<img src="/static/images/site_logos_3.png" /></div>
+    
+    
+<a href="/products" class="button" style="width: 200px;">Learn How to Improve Your Score</a>
+ 
+ </div>
+ 
+ <div class="block reviews" id="personReviewsTableHole">
+
+ <h1>Reviews</h1>
+    
 
  </div><!-- reviews-->
 
 <div style="width: 553px; float: left; margin: 18px 18px 18px 186px;">
-<a href="/products" class="button" style="width: 130px;">Improve My Score</a>
+<a href="/products" id="bottomButton" class="button" style="margin-left: -38px; width: 200px;">Learn How to Improve Your Score</a>
 </div>
 </div><!-- col1 -->
 

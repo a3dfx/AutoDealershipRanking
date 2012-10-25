@@ -27,12 +27,12 @@
 <div class="sectionWrapper">
 <div class="packages">
         <div class="block base">
-        <div class="pad">
+        <div class="pad" id="baseSelect" style="height: 86%; cursor: pointer;">
                 <h1 class="type">BASE</h1>
                 <h1>Review Management Software</h1>
                 <h1 class="price">$49/month</h1>
                 <ul>
-                <li>Monitor online reviews and social mentions</li>
+                <li>Monitor online reviews and social mentions</li>
                 <li>Recieve email alerts for new reviews and mentions</li>
                 <li>Request reviews from your customers</li>
                 <li>Patented Reputation scoring showing you how you measure up</li>
@@ -40,7 +40,7 @@
         </div></div>
         
         <div class="block gold">
-        <div class="pad">
+        <div class="pad" id="goldSelect" style="height: 86%; cursor: pointer;">
                 <h1 class="type">GOLD</h1>
                 <h1>Fully Managed Service</h1>
                 <h1 class="price">$249/month</h1>
@@ -55,7 +55,7 @@
         </div></div>
         
         <div class="block platinum">
-        <div class="pad">
+        <div class="pad" id="platinumSelect" style="height: 86%; cursor: pointer;">
                 <h1 class="type">PLATINUM</h1>
                 <h1>Real-time, High-touch Service</h1>
                 <h1 class="price">$749/month</h1>
@@ -71,7 +71,7 @@
 
 
 
-
+<!--  
 <div class="section locations">
 <div class="pad">
 <h1>Select a Location</h1>
@@ -103,8 +103,21 @@
   </tr>
 </table>
 </div></div><!-- section-->
-
-
+<div class="section locations">
+<div class="pad">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr class="total">
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td colspan="2">Total: <span id='totalPrice'>$0</span></td>
+  </tr>
+</table>
+</div>
+</div>
+</div>
 
 <div class="section account">
 <div class="pad">
@@ -112,6 +125,7 @@
 <span id='emailTextFieldHole'></span>
 <span id='personName'></span>
 <span id='phoneNumber'></span>
+<span id='dealershipName'></span>
 </div></div><!-- section-->
 
 

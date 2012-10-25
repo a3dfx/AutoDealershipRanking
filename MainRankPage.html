@@ -5,12 +5,12 @@
                
 <div id="header">
     <ul class="nav">
-    <li class="active"><a href="/">Home</a></li>
+    <li class="active"><a href="/rank">Home</a></li>
 
     <li><a href="/finddealer">Find a Dealer</a></li>
     <li><a href="/products">Buy</a></li>
     </ul><!-- nav-->
-	<a href="/"><img src="/static/images/logo.png" alt="" class="logo" /></a>
+	<a href="/rank"><img src="/static/images/logo.png" alt="" class="logo" /></a>
 </div><!-- header-->
 
 <div id="content" class="round">
@@ -21,15 +21,11 @@
 	
 </div><!-- subheading-->
 
-<div class="buttons">
-    <a href="/finddealer" class="button"><img src="/static/images/icon_find.png" />Find a Dealer</a>
-    <a href="#score" class="inline button"><img src="/static/images/icon_info.png" />About Scoring</a>
-    
+
 <div class="overlay">
     <div id="score"><img src="/static/images/score.png" alt="" /></div>
  </div><!-- overlay-->
-   
-    </div><!-- buttons-->
+
 
     <div class="pad">
 	
@@ -39,7 +35,8 @@
         
      <div class="tableWrapper">
      
-     <div class="filters">
+     <div class="filters">   
+<a href="/finddealer" class="button" style="margin-left: 36px;"><img src="/static/images/icon_find.png" />Find Your Dealer</a>      
      <div class="brand" id="brandSelect"><label>Brand: </label>
      <div class="select">
      <select class="enhance" name="" id="brandSelectElem" >
@@ -51,6 +48,7 @@
      <select class="enhance" id="stateSelectElem">
 	</select></div>
     </div>
+    <a href="#score" class="inline button" style="margin-left: 15px;"><img src="/static/images/icon_info.png" />About Scoring</a>     
      </div>
      
      <div class="table" id="rankResultsTableHole">

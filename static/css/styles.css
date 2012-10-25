@@ -114,7 +114,6 @@ strong{line-height: inherit; color: inherit; font-size: inherit;  }
 .banner{position: absolute; margin:10px 0 0 596px;}
 a.back{display: block; margin: 0 0 12px 0; background: url(../images/back.png) center left no-repeat; padding: 0 0 0 14px;}
 
-
 /*****   footer  *******/
 
 #footer{width: 960px; clear: both;margin: 5px 0 20px 0; float: left; padding: 10px 0;}
@@ -132,12 +131,14 @@ border-top-right-radius: 5px;}
 .filters div{float: left; color: #fff;margin: 0 14px 0 0;}
 .filters label{float: left; height: 29px; line-height:29px; font-size: 14px;}
 .filters .select{float: left; margin-left: 6px;}
-.filters .brand{margin-left: 200px;}
+.filters .brand{margin-left: 15px;}
 table{width: 100%;border: 1px solid #ddd; bord }
 th, td{vertical-align: middle; padding: 7px 0; border-bottom: 1px solid #ddd; }
-th{background: #dfe4e8; text-align:center;}
+th{background: #dfe4e8; text-align:center; padding-right: 10px; padding-left: 10px;}
 td.rank{text-align:center; font-size: 15px; color: #888;}
-th.dealer{text-align: left;}
+th.dealer{text-align: left; padding-left: 100px;}
+th.state{text-align: left; padding-right: 60px; padding-left: 10px;}
+th.numReviews{padding-right: 50px;}
 td.sites{text-align:center;}
 td.reviews{text-align:center;}
 td.score{text-align:center; color: #449e1e;}
@@ -172,8 +173,18 @@ hr{border-top: 1px solid #ddd; border-bottom: 1px solid #fff; background: none;}
 .reviews .row .button{float: right;margin: 0;}
 
 .score h2{font-size: 14px; color: #666; text-align:center;}
-.score .button{float: none; display: block; margin: 0 auto; width: 130px;}
+.score .button, .reviews .button{float: none; display: block; margin: 0 auto; width: 130px;}
 .score .about{font-size: 11px; margin: 0 0 -12px -100px; float: right;}
+
+.stats{float: left; width: 193px; text-align: center; background: #f7f7f7; border: 1px solid #ddd; height: 76px; padding: 20px; margin: 0 5px;}
+.stats h2, .siteLogos h2{color: #888; font-size: 15px; margin: 0 0 10px 0;}
+p.number{font-size: 32px; }
+.blue{color: #2e7bb1; margin-top: 16px;}
+.stats .orange{color: #F63; font-size: 20px;}
+.stats span{font-size: 13px; color: #999;}
+.stars{margin: 0 0 10px 0;}
+
+.siteLogos{text-align:center;padding-top: 20px; clear: both; margin-bottom: 30px;}
 
 
 /*****  find dealer *******/

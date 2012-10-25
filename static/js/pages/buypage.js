@@ -5,6 +5,7 @@ $(document).ready(function() {
 		planChosen: Control.property(),
 		userParams: Control.property(),
 		saleTotal: Control.property(),
+		planId: Control.property(),
 		userId: Control.property(),
 		entityAdded: Control.property(),
 		entityInfos: Control.property(),
@@ -91,7 +92,7 @@ $(document).ready(function() {
             var apiSecret = "rdi9GRCV/a9W5y1eAwSM0Asd";
             var url;
             var urlData;
-            var dataEncoded;            
+            var dataEncoded;         
             
             url = 'http://qaservices.reputationdefender.com/AccountManagement/createAccount' +
             	"?api_key=ReputationSF" +
@@ -200,18 +201,57 @@ $(document).ready(function() {
 	    	}
 	    	return allInpsValid;
 	    },	
+	    planSelected: function(plan) {
+	    	var self = this;
+	    	if (plan == 'gold') {
+	    		$('#goldSelect').css({
+	    			'border': '3px solid #2E7BB1'
+	    		});
+	    		$('#baseSelect').css('border', '');
+	    		$('#platinumSelect').css('border', '');
+	    	} else if (plan == 'base') {
+	    		$('#baseSelect').css({
+	    			'border': '3px solid #2E7BB1'
+	    		});	
+	    		$('#goldSelect').css('border', '');
+	    		$('#platinumSelect').css('border', '');	    		
+	    	} else if (plan == 'platinum') {
+	    		$('#platinumSelect').css({
+	    			'border': '3px solid #2E7BB1'
+	    		});	
+	    		$('#baseSelect').css('border', '');
+	    		$('#goldSelect').css('border', '');	    		
+	    	}
+            planMapping = {
+            	'base': {'price': 49, 'plan': {"7" : "13861"}},
+            	'gold': {'price': 249, 'plan': {"7" : "13862"}},
+            	'platinum': {'price': 749, 'plan': {"7" : "13863"}}
+            }		
+            self.saleTotal(planMapping[plan].price)
+            self.planId(planMapping[plan].plan);
+            var totalPrice = $('#totalPrice').html(self.saleTotal());
+            totalPrice.formatCurrency();                       
+	    },
 	    onSubmit: function() {
 	    	var self = this;
 			$('#loadingGif').show();
 			$expMonth = $('#expMonthSelect').html();
 			$expYear = $('#expYearSelect').html();
-			$packageSelect = $('#packageSelect').html();
-			self.planChosen($packageSelect);
+			//$packageSelect = $('#packageSelect').html();
+			//self.planChosen($packageSelect);
+            var entityData = {
+            	is_primary: true,
+            	plans:      self.planId(),
+            	name:       $dealershipName.getValidInput()
+            }
+            self.entityAdded(entityData);
+            self.addEntityInfo(entityData); 			
 			var inps = [
 			    $city.getValidInput(),
 			    $zip.getValidInput(),
 			    $emailTextField.getValidInput(),
-			    $cardName.getValidInput(),
+			    $dealershipName.getValidInput(),
+			    //$cardName.getValidInput(),
 			    $ccNum.getValidInput(),
 			    $state.getValidInput(),
 			    $address.getValidInput(),
@@ -219,7 +259,7 @@ $(document).ready(function() {
 			    $phoneNumber.getValidInput()
 			];
 			if (self.inputsValid(inps)) {
-				if (self.entityInfos().length) {
+				//if (self.entityInfos().length) {
 					self.userParams({
 						email: $emailTextField.getValidInput(),
 						personName: $personName.getValidInput(),
@@ -228,24 +268,24 @@ $(document).ready(function() {
 					});
 					self.ccNumber($ccNum.getValidInput());
 					self.processPayment();
-				} else {
-					$('#loadingGif').hide();
-					$submitButton.enable();
-					alert("Must add a location before submitting form.")					
-				}
+				//} else {
+				//	$('#loadingGif').hide();
+				//	$submitButton.enable();
+					//alert("Must add a location before submitting form.")					
+				//}
 			} else {
 				$('#loadingGif').hide();
 				$submitButton.enable();
-				alert("Please enter valid input for each field.")
+				//alert("Please enter valid input for each field.")
 			}	    	
 	    },
 	    addLocation: function() {
 	    	var self = this;
 	    	var packageSelected = $("#packageSelecter").val()
             planMapping = {
-            	'Base': {'price': 49, 'plan': {"5" : "13861"}},
-            	'Gold': {'price': 249, 'plan': {"5" : "13862"}},
-            	'Platinum': {'price': 749, 'plan': {"5" : "13863"}}
+            	'Base': {'price': 49, 'plan': {"7" : "13861"}},
+            	'Gold': {'price': 249, 'plan': {"7" : "13862"}},
+            	'Platinum': {'price': 749, 'plan': {"7" : "13863"}}
             }			            
             if (!self.saleTotal()) {
             	self.saleTotal(planMapping[packageSelected].price) 
@@ -289,7 +329,7 @@ $(document).ready(function() {
 	    },
 		initialize: function() {
 			var self = this;
-			this.inDocument(function() {	
+			this.inDocument(function() {
 				self.entityInfos([]);
     			$("#emailTextFieldHole").append(
 	    			$emailTextField = G.controls.TextField.create()
@@ -303,13 +343,14 @@ $(document).ready(function() {
 							class: 'field'
 						})
 				);
-    			$("#dealershipNameTextFieldHole").append(
+    			$("#dealershipName").append(
     	    		$dealershipName = G.controls.TextField.create()
 						.id('business_name')
 						.required(true)
 						.bgColorOnFocus('#EDF6FD')
 						.placeHolderText('Dealership Name')
 						.attr({
+							id: 'dealershipName',
 							name: 'DealershipName',
 							class: 'field'
 						})    			
@@ -353,6 +394,7 @@ $(document).ready(function() {
 						})
 				);
     			
+    			/*
     			$("#cardName").append(
     	    			$cardName = G.controls.TextField.create()
     						.id('first_name')
@@ -365,7 +407,7 @@ $(document).ready(function() {
     							class: 'field'
     						})
     				);
-    			
+    			*/
     			$("#address").append(
     	    			$address = G.controls.TextField.create()
     						.id('address1')
@@ -460,8 +502,18 @@ $(document).ready(function() {
 							name: 'location_zip',
 							class: 'field'
 						})
-    			);    			
+    			);    
     			
+    			$('#baseSelect').click(function() {
+    				self.planSelected('base');
+    			});
+    			$('#goldSelect').click(function() {
+    				self.planSelected('gold');
+    			});
+    			$('#platinumSelect').click(function() {
+    				self.planSelected('platinum');
+    			});
+    			self.planSelected('gold');
     			$('#addLocationButton').click(function() {
 					var inps = [
 					    $locName.getValidInput(),
@@ -474,7 +526,7 @@ $(document).ready(function() {
 					if (self.inputsValid(inps)) {	
 						self.addLocation();
 					} else {
-						alert('Must fill all fields to add a location');
+						//alert('Must fill all fields to add a location');
 					}
     			})
     			$('#submitButton').append(
