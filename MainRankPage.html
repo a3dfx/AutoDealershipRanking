@@ -23,20 +23,68 @@
 
 
 <div class="overlay">
-    <div id="score"><img src="/static/images/score.png" alt="" /></div>
+    <div id="score">
+    <div class="pad">
+    <h1>What's in a Reputation Score?</h1>
+    <h2>The Score represents an Internet user's overall perspective of your business on review sites.</h2>
+    <p>The top Score of 1000 is reserved for businesses with perfect reviews and high volumes of taffic.<br>
+Above 900 is considered exceptional and would represent an elevated status among your peers.</p>
+    <div class="ScoreBar"> <div class="bar" style="background: url(../static/images/score-bar.png) top left no-repeat;"><div class="marker"><h3>Nat'l Avg.</h3><h4>233</h4></div></div> </div> 
+    
+       </div><!-- pad-->
+       
+       
+    <div class="breakdown">
+    <div class="pad">
+    <h2>The Score is calculated by analyzing the components below:</h2>
+    
+    <div class="subScore">
+    <h2>Star Average</h2>
+    <p>Your star average measures your average rating, applying factors like the popularity of review sites and review quality to each review.</p>
+    </div>
+    <div class="subScore">
+    <h2>Length</h2>
+    <p>Consumers perceive long reviews to be more accurate and authoritative than short reviews.</p>
+    </div>
+        <div class="subScore">
+    <h2>Volume</h2>
+    <p>The more reviews a location has, the more it will be perceived as an established business by the community.</p>
+    </div>
+        <div class="subScore">
+    <h2>Spread</h2>
+    <p>Reviews should be distributed across multiple sites, and the distribution should match the importance of each review site.</p>
+    </div>
+        <div class="subScore">
+    <h2>Recentness</h2>
+    <p>Recent reviews create a fresh and vibrant feel for a location.</p>
+    </div>
+        <div class="subScore">
+    <h2>Visibility</h2>
+    <p>This rating measures your review presence on the most visible review sites.</p>
+    </div>    
+    
+    </div><!-- breakdown-->
+    </div><!-- pad--></div>
  </div><!-- overlay-->
 
 
     <div class="pad">
-	
+<div class="scoreBox">
+          <div class="scoreBar"> <div class="bar"><div class="marker"><h3>Nat'l Avg.</h3><h4>233</h4></div></div>  
+   <a class="inline cboxElement" href="#score">About Scoring</a></div>
+
+        <p>Use the filters to view the top 20 locations for your criteria or search for a specific loation.<br> Click a dealership to get details about its online reputation.</p>
         
+       <a class="button" href="/finddealer"><img src="/static/images/icon_find.png">Find a Dealer</a>
+       
+       </div>
         
         
         
      <div class="tableWrapper">
      
      <div class="filters">   
-<a href="/finddealer" class="button" style="margin-left: 36px;"><img src="/static/images/icon_find.png" />Find Your Dealer</a>      
+<!-- <a href="/finddealer" class="button" style="margin-left: 36px;"><img src="/static/images/icon_find.png" />Find Your Dealer</a> --> 
      <div class="brand" id="brandSelect"><label>Brand: </label>
      <div class="select">
      <select class="enhance" name="" id="brandSelectElem" >
@@ -48,7 +96,7 @@
      <select class="enhance" id="stateSelectElem">
 	</select></div>
     </div>
-    <a href="#score" class="inline button" style="margin-left: 15px;"><img src="/static/images/icon_info.png" />About Scoring</a>     
+    <!-- <a href="#score" class="inline button" style="margin-left: 15px;"><img src="/static/images/icon_info.png" />About Scoring</a> -->    
      </div>
      
      <div class="table" id="rankResultsTableHole">
@@ -71,7 +119,7 @@
 
 
 <div id="footer">
-<p class="">&copy; 2012 Reputation.com</p>
+<p class="">&copy; 2013 Reputation.com</p>
 </div> <!-- footer-->
 
     
@@ -87,3 +135,10 @@
 
 
 </body>
+
+
+
+
+
+
+
